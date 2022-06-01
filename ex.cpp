@@ -12,28 +12,28 @@
 
 //std::shared_ptr<int> share()
 
-class Texture
+class Head
 {
 public:
-	Texture(int i) { val = 784; }
-	~Texture() {}
+	Head() {}
+	~Head() {}
 
-	int val;
+	void Heavy() { weight = 12311; }
+
+	int weight = 87;
 	
 };
 
-template<class... Args>
-std::shared_ptr<Texture> share(Args... args)
+void needclass(Head head)
 {
-	std::shared_ptr<Texture> texture = (std::make_shared<Texture>(args), ...);
-	return texture;
+	std::cout << head.weight << std::endl;
 }
+
 
 int main()
 {
-	std::shared_ptr<Texture> texture = share(12);
-	std::cout << texture->val << std::endl;
-	
+	needclass((Head{}.Heavy()));
+
 	std::cout << R"(END)" << std::endl;
 
 

@@ -3,7 +3,7 @@
 
 
 
-SDL_Surface* Load_Surface(std::string path)
+SDL_Surface* Load_Surface(const std::string& path)
 {
 	SDL_Surface* surface = IMG_Load(path.c_str());
 
@@ -18,7 +18,7 @@ SDL_Surface* Load_Surface(std::string path)
 	return surface;
 }
 
-SDL_Texture* Load_Texture(SDL_Renderer* renderer, std::string path) 
+SDL_Texture* Load_Texture(SDL_Renderer* renderer, const std::string& path) 
 {
 	SDL_Surface* surface = Load_Surface(path);
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -37,7 +37,7 @@ SDL_Texture* Load_Texture(SDL_Renderer* renderer, std::string path)
 	return texture;
 }
 // for format, use SDL_GetWindowPixelFormal
-SDL_Texture* Load_Texture(SDL_Renderer* renderer, Uint32 format, std::string path, void* pixels, int& pitch, int& imgw, int& imgh)
+SDL_Texture* Load_Texture(SDL_Renderer* renderer, Uint32 format, const std::string& path, void* pixels, int& pitch, int& imgw, int& imgh)
 {
 	SDL_Surface* surface = Load_Surface(path);
 	SDL_Texture* texture = nullptr;
@@ -110,49 +110,46 @@ int Texture::instances = 0;
 
 
 // Texture functions _______________________________________________________________________________________________________________
-Texture::Texture() :
-	angle(360.0),
-	center(nullptr),
-	flip(SDL_FLIP_NONE),
-	path("UnLoaded"),
-	renderer(nullptr),
-	texture(nullptr)
+Texture::Texture(SDL_Renderer* p_renderer, const std::string& p_path)
 {
 	instances++;
 	id = instances;
+
+	angle  = 360.0;
+	center = nullptr;
+	flip = SDL_FLIP_NONE;
+	path = "UnLoaded";
+	renderer = nullptr;
+	texture  = nullptr;
+
+	path 	  = p_path;
+	renderer  = p_renderer;
+	texture = Load_Texture(renderer, path);
 }
 Texture::~Texture()
 {
-	Destroy();
+	if (texture)
+	{
+		SDL_DestroyTexture(texture); 
+		texture = nullptr;
+
+		logger("Destroyed <Texture><" + std::to_string(id) + "> : " + path);
+	}
 	renderer = nullptr;
 	center = nullptr;
 }
 
 
-SDL_Texture* Texture::Get_SDL_Texture() const
+SDL_Texture* Texture::Get_SDL_Texture() const noexcept
 {
 	return texture;
 }	
-bool Texture::Load(SDL_Renderer* p_renderer, std::string p_path) 
-{
-	Destroy();
 
-	path 	  = p_path;
-	renderer  = p_renderer;
-	SDL_Surface* surface = Load_Surface(path);
-	texture = SDL_CreateTextureFromSurface(renderer, surface);
-	imgw = surface->w;
-	imgh = surface->h;
-	SDL_FreeSurface(surface);
-
-	return texture;
-}
-
-void Texture::Render(SDL_Rect p_rect, const SDL_Rect* p_clip) const
+void Texture::Render(const SDL_Rect& p_rect, const SDL_Rect* p_clip) const noexcept
 {
 	SDL_RenderCopyEx(renderer, texture, p_clip, &p_rect, angle, center, flip);
 }
-void Texture::Render(SDL_FRect p_rect, const SDL_Rect* p_clip, const SDL_FPoint* p_center) const
+void Texture::Render(const SDL_FRect& p_rect, const SDL_Rect* p_clip, const SDL_FPoint* p_center) const noexcept
 {
 	SDL_RenderCopyExF(renderer, texture, p_clip, &p_rect, angle, p_center, flip);
 }
@@ -202,23 +199,13 @@ bool Texture::Unlock()
     return success;
 }
 
-void Texture::Set_Opacity(Uint8 p_alpha) 
+void Texture::Set_Opacity(Uint8 p_alpha) noexcept
 {
 	SDL_SetTextureAlphaMod(texture, p_alpha);
 }
-void Texture::Set_Color(SDL_Color p_color) 
+void Texture::Set_Color(const SDL_Color& p_color) noexcept
 {
 	SDL_SetTextureColorMod(texture, p_color.r, p_color.g, p_color.b);
 }
 
 
-void Texture::Destroy() 
-{
-	if (texture)
-	{
-		SDL_DestroyTexture(texture); 
-		texture = nullptr;
-
-		logger("Destroyed <Texture><" + std::to_string(id) + "> : " + path);
-	}
-}

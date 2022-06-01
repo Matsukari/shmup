@@ -24,18 +24,6 @@ public:
 
 	using Res_ptr = std::shared_ptr<ResourceType>;
 	using Res_map = std::map<std::string, Res_ptr>;
-	template<class ID>
-	Res_ptr ConstructVoid(ID p_id)
-	{
-		if (res.find(p_id) != res.end())
-		{
-			return Get(p_id);
-		}
-		Res_ptr resource = std::make_shared<ResourceType>();
-		res[p_id] = resource;
-
-		return resource;
-	}
 	template<class ID, class... Ts>
 	Res_ptr Construct(ID p_id, Ts... args)
 	{
@@ -43,19 +31,10 @@ public:
 		{
 			return Get(p_id);
 		}
-		Res_ptr resource = (std::make_shared<ResourceType>(args), ...); // fold expression
+		Res_ptr resource = std::make_shared<ResourceType>(args...);
 		res[p_id] = resource;
 
 		return resource;
-	}
-	template<class ID, class FuncT, class... Ts>
-	void Call(ID p_id, FuncT func, Ts... args)
-	{
-		// only if constructed
-		if (res.find(p_id) != res.end())
-		{
-			(func(args), ...);
-		}
 	}
 
 	Res_ptr Get(std::string p_id)

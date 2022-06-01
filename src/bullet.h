@@ -8,80 +8,83 @@
 namespace Shmup
 {
 	// health translates to total bullets. Once it reached 0, 'is_alive' is false
-	class Bullets : public Actor
+	// fired the moment it's initialized
+	class Bullet : public Actor
 	{
 	public:
-		Bullets(const EntityProp& p_prop, ActorArray& p_targets);
-		~Bullets();
+		Bullet(const EntityProp& p_prop, ActorArray* p_targets, Vecf2 p_vel, int p_dmg);
+		virtual ~Bullet() override;
 
-		virtual void Fire(FRect p_start, Vec2 p_vel, int p_dmg);
 		virtual void Update(float p_dt) override;
 		virtual void Render() override;
 
 
 	protected:
 		ActorArray* targets;
-		bool is_fired;
 		int dmg;
 		
 	};
-	Bullets::Bullets(const EntityProp& p_prop, ActorArray& p_targets) : 
+	
+
+	Bullet::Bullet(const EntityProp& p_prop, ActorArray* p_targets, Vecf2 p_vel, int p_dmg) : 
 		Actor(p_prop), 
-		targets(&p_targets)
+		targets(p_targets),
+		dmg(p_dmg)
 	{
-		logger("Initializing <bullets><", id, ">...");
-		is_fired = false;
+		logger("Initializing <bullet><", id, ">...");
+		vel = p_vel;
+		is_alive = true;
+
 	}
-	Bullets::~Bullets()
+	Bullet::~Bullet()
 	{
-		logger("Initializing <Bullets><", id, ">...");
+		logger("Destructing <Bullet><", id, ">...");
 		targets = nullptr;
 	}
 
-	void Bullets::Fire(FRect p_start, Vec2 p_vel, int p_dmg)
+
+	// preferably called  earlier than other actors so they can adjust to the update made to them,
+	// this object is stuck at them so
+	void Bullet::Update(float p_dt)
 	{
-		is_fired = true;
-		vel = p_vel;
-		dmg = p_dmg;
-		rect = p_start;
-
-		logger("Bullet fired");
-	}
-
-
-	// preferably called  earlier than other actors so they can adjust to the update made to them
-	void Bullets::Update(float p_dt)
-	{
-		if (is_fired)
+		if (is_alive)
 		{
 			Actor::Update(p_dt);
-			for (auto target : *targets)
+
+			if (rect.y > 570)
 			{
-				if (Collided_Rect(collrect, target.GetCollRect()))
-				{
-					is_fired = false;
-					health--; // bullet
-					target.SetHealth(target.GetHealth() - dmg);
-
-					if (health == 0)
-					{
-						//logger("Bullet died");
-						is_alive = false;
-						return;
-					}
-
-					logger("Bullet hit");
-				}
+				is_alive = false;
+				logger("bullet bounds hit");
 			}
+
+			if (targets != nullptr)
+			{
+				for (auto target : *targets)
+				{
+					logger("checking target collission...");
+					if (Collided_Rect(collrect, target->GetCollRect()))
+					{
+						is_alive = false;
+						target->SetHealth(target->GetHealth() - dmg);
+
+						logger("Bullet hit");	
+					}
+				}	
+			}
+			
 		}
 		
 	}
-	void Bullets::Render()
+	void Bullet::Render()
 	{
-		if (is_fired)
+		// dead men don't move!
+		if (is_alive)
 		{
 			Actor::Render();
 		}
 	}
+
+
+
 
 }

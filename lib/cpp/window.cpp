@@ -20,6 +20,9 @@ Window::Window(const char* p_title, Rect p_rect, Uint32 p_window_flags, Uint32 p
 		logger(SDL_GetError());
 		return;
 	}
+
+	rect.x = 0;
+	rect.y = 0;
 }
 Window::~Window()
 {

@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 
+
 #ifndef LOGGER_FILENAME
  #define LOGGER_FILENAME "logger.txt"
 #endif
@@ -22,15 +23,13 @@ public:
 		data.close();
 	}
 
+	// functionate
 	template<typename T>
 	void operator()(T arg)
 	{
 		if (data.is_open())
 		{
-			#ifdef RD
-			std::cout << arg << std::endl;
-			#endif
-			data << arg << std::endl;
+			data << arg << " ";
 		}
 	}
 	template<typename T, typename... Ts>
@@ -38,6 +37,7 @@ public:
 	{
 		this->operator()(arg);
 		this->operator()(args...);
+		this->operator()("\n");
 	}
 
 

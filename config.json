@@ -1,0 +1,10 @@
+{
+		"size" :
+		{
+			"window" : [720, 550],
+			"red_ship" : [32, 48],
+			"bullet_long" : [10, 26],
+			"bullet_sphere" : [5, 5],
+
+		}
+}

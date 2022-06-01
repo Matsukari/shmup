@@ -23,5 +23,15 @@ CCFLAGS="
  -std=c++17
 "
 
-echo "g++ $OBJECTS $LINKERS -o shmup"
-g++ $OBJECTS $LINKERS -o shmup
+EXECUTABLE="shmup"
+
+echo "g++ $OBJECTS $LINKERS -o $EXECUTABLE"
+g++ $OBJECTS $LINKERS -o $EXECUTABLE
+
+ok=false
+read -p "run[y/n]? " ok
+case $ok in
+    "y" | "Y" | "" )
+        ./$EXECUTABLE
+        ;;
+esac

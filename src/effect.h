@@ -10,7 +10,7 @@ namespace Shmup
 	{
 	public:
 		Effect(const EntityProp& p_prop);
-		~Effect();
+		virtual ~Effect() override;
 
 		virtual void Play(int p_encore=1);
 		virtual void Update(float p_dt) override;
@@ -51,8 +51,8 @@ namespace Shmup
 	{
 		if (is_playing)
 		{
-			curframe += fps * p_dt;
-			if (curframe >= frames->size())
+			Entity::Update(p_dt);
+			if (curframe >= frames.size())
 			{
 				curframe = 0;
 				encore--;

@@ -55,7 +55,7 @@ App::App() :
 	font(renderer, "assets/fonts/sans.ttf", 24)
 {
 	has_quit = false;
-	shmup = new Shmup::ShmupGame(renderer);
+	shmup = new Shmup::ShmupGame(renderer, GetRect());
 
 }
 App::~App()
@@ -66,7 +66,7 @@ App::~App()
 
 void App::Exe()
 {
-
+	logger("App starting to run");
 	while(!has_quit)
 	{
 		On_Events();

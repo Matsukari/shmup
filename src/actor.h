@@ -1,6 +1,7 @@
 #pragma once
 #define actor_h
 
+#include "../lib/include/timer.h"
 #include "entity.h"
 
 
@@ -10,7 +11,7 @@ namespace Shmup
 	{
 	public:
 		Actor(const EntityProp& p_prop);
-		~Actor();
+		virtual ~Actor() override;
 
 		int GetHealth() const noexcept { return health; }
 		Vec2 GetVel() const noexcept { return vel; }
@@ -21,7 +22,6 @@ namespace Shmup
 		void SetCollRect(FRect p_collrect) noexcept { collrect = p_collrect; }
 
 		bool IsAlive() const noexcept { return is_alive; }
-
 		virtual void Update(float p_dt) override;
 
 	protected:
@@ -29,9 +29,11 @@ namespace Shmup
 		int health;
 		FRect collrect;
 
-		Vec2 vel;
+		Vecf2 vel;
+
+		Timer move_timer;
 	};
-	using ActorArray = std::vector<Actor>;
+	using ActorArray = std::vector<Actor*>;
 
 	Actor::Actor(const EntityProp& p_prop) :
 		Entity(p_prop)
@@ -40,7 +42,10 @@ namespace Shmup
 
 		is_alive = true;
 		health = 0;
+		collrect = rect;
+		
 		vel = Vec2{0, 0};
+		move_timer.Peek();
 	}
 	Actor::~Actor()
 	{
@@ -49,8 +54,21 @@ namespace Shmup
 
 	void Actor::Update(float p_dt)
 	{
+		Entity::Update(p_dt);
+		if (move_timer.SinceLastPeek() >= fspeed)
+		{
+			move_timer.Peek();
+			curframe++;
+			if (curframe >= frames.size())
+			{
+				curframe = 0;
+			}
+		}
+
 		rect.x += vel.x * p_dt;
 		rect.y += vel.y * p_dt;
+
+
 
 	}
 

@@ -6,37 +6,29 @@
 #include <string>
 #include "logger.h"
 
-SDL_Surface* Load_Surface(std::string path);
-SDL_Texture* Load_Texture(SDL_Renderer* renderer, std::string path);
-SDL_Texture* Load_Texture(SDL_Renderer* renderer, Uint32 format, std::string path, void* pixels, int& pitch, int& imgw, int& imgh);
+SDL_Surface* Load_Surface(const std::string& path);
+SDL_Texture* Load_Texture(SDL_Renderer* renderer, const std::string& path);
+SDL_Texture* Load_Texture(SDL_Renderer* renderer, Uint32 format, const std::string& path, void* pixels, int& pitch, int& imgw, int& imgh);
 
 // even after an instance is destoryed, previous instances's id will remain the same
 class Texture 
 {
 public:
-	Texture();
+	Texture(SDL_Renderer* p_renderer, const std::string& p_path);
 	~Texture();
 
-	SDL_Texture* Get_SDL_Texture() const;	
-	
-
-	bool Load(SDL_Renderer* p_renderer, std::string p_path);
+	SDL_Texture* Get_SDL_Texture() const noexcept;	
 
 	// Renders
-	void Render(SDL_Rect p_rect, const SDL_Rect* p_clip = nullptr) const;
-	void Render(SDL_FRect p_rect, const SDL_Rect* p_clip = nullptr, const SDL_FPoint* p_center = nullptr) const;
+	void Render(const SDL_Rect& p_rect, const SDL_Rect* p_clip = nullptr) const noexcept;
+	void Render(const SDL_FRect& p_rect, const SDL_Rect* p_clip = nullptr, const SDL_FPoint* p_center = nullptr) const noexcept;
 
 	bool Lock();
 	bool Unlock();
 
-	void Set_Opacity(Uint8 p_alpha); 
-	void Set_Color(SDL_Color p_color);
+	void Set_Opacity(Uint8 p_alpha) noexcept; 
+	void Set_Color(const SDL_Color& p_color) noexcept;
 
-	void Destroy();
-
-public:
-	int imgw;
-	int imgh;
 
 protected:
 	int id;

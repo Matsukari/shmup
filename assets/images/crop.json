@@ -19,7 +19,7 @@
 					[0, 0, 0, 0]
 				] 
 			},
-			"fps" : 100
+			"fspeed" : 100
 		},
 		"enemy_medium" :
 		{
@@ -31,7 +31,7 @@
 					[0, 0, 0, 0]
 				] 
 			},
-			"fps" : 100
+			"fspeed" : 100
 		},
 		"enemy-small" :
 		{
@@ -43,7 +43,7 @@
 					[0, 0, 0, 0]
 				] 
 			},
-			"fps" : 100
+			"fspeed" : 100
 		},
 		"red_ship" :
 		{
@@ -65,15 +65,15 @@
 				"move_right" :
 				[
 					
-					[48,  0, 24, 0],
-					[48, 24, 24, 0],
-					[64,  0, 24, 0],
-					[64, 24, 24, 0]
+					[48,  0, 16, 24],
+					[48, 24, 16, 24],
+					[64,  0, 16, 24],
+					[64, 24, 16, 24]
 				]
 
 			},
 
-			"fps" : 100
+			"fspeed" : 100
 		}
 	},
 	"effects" :
@@ -82,19 +82,19 @@
 		{
 			"filename" : "enemy-big.png",
 			"frames" : [[0, 0, 0, 0]],
-			"fps" : 100
+			"fspeed" : 100
 		},
-		"laser-long" :
+		"laser_long" :
+		{
+			"filename" : "laser-long.png",
+			"frames" : [[0, 0, 5, 13], [5, 0, 5, 13]],
+			"fspeed" : 100
+		},
+		"enemy_sphere" :
 		{
 			"filename" : "enemy-big.png",
 			"frames" : [[0, 0, 0, 0]],
-			"fps" : 100
-		},
-		"enemy-sphere" :
-		{
-			"filename" : "enemy-big.png",
-			"frames" : [[0, 0, 0, 0]],
-			"fps" : 100
+			"fspeed" : 100
 		}
 	}
 }
