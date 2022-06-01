@@ -189,7 +189,7 @@ namespace Shmup
 	{
 		logger("Creating new MOB");
 		EntityProp enemy_prop = {
-			.texture = txtmgr.Construct("mob", renderer, imgcrop["ships"]["enemy_small"]["filename"]),
+			.texture = txtmgr.Construct("mob", renderer, imgpath + std::string{imgcrop["ships"]["enemy_small"]["filename"]}),
 			.rect = {200, 100, 16*2, 16*2},
 			.frames = json_2dArrayToRectArray<RectArray, Rect, int>(imgcrop["ships"]["enemy_small"]["frames"]["idle"]),
 			.fspeed = 100
