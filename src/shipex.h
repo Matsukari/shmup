@@ -148,7 +148,7 @@ namespace Shmup
 	void ShipEx::Render()
 	{
 		gun->Render();
-		texture->Render(Rect{rect}, &framemap.at(curaction).at(static_cast<int>(curframe)));
+		texture->Render(Rect{rect}, &framemap.at(curaction).at(curframe));
 		
 	}
 }

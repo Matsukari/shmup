@@ -5,7 +5,7 @@
 
 namespace Shmup
 {
-	// A ship with actions
+	// background
 	class BG : public Actor
 	{
 	public:

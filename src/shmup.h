@@ -8,6 +8,7 @@
 #include "effect.h"
 #include "ship.h"
 #include "shipex.h"
+#include "enemy_ship.h"
 #include "bg.h"
 #include "../lib/include/resource_manager.h"
 #include "../lib/json.hpp"
@@ -59,6 +60,11 @@ namespace Shmup
 		void Update(float p_dt);
 		void Render();
 
+		void New_Mob();
+		void New_Mob2();
+		void New_Boss();
+
+
 	private:
 		// manager
 		ResourceManager<Texture> txtmgr;
@@ -66,12 +72,16 @@ namespace Shmup
 		nlohmann::json imgcrop;
 
 		// actors
-		ActorArray ships;
+		Actor* player_ship;
+		ActorArray enemy_ships;
 		BG* bg;
 
 		// prop
 		FRect rect;
 		FRect spawnstart;
+
+		EntityProp laser_prop;
+		EntityProp bomb_prop;
 
 
 	};
@@ -97,8 +107,22 @@ namespace Shmup
 			24 * 2
 		};
 
+		laser_prop = EntityProp{
+			.texture = txtmgr.Construct("laser", renderer, imgpath + std::string{imgcrop["effects"]["laser_long"]["filename"]}),
+			.rect = {0,0, 10, 26},
+			.frames = json_2dArrayToRectArray<RectArray, Rect, int>(imgcrop["effects"]["laser_long"]["frames"]),
+			.fspeed = imgcrop["effects"]["laser_long"]["fspeed"]
+		};
+		bomb_prop = EntityProp{
+			.texture = txtmgr.Construct("bomb", renderer, imgpath + std::string{imgcrop["effects"]["laser_sphere"]["filename"]}),
+			.rect = {0,0, 10, 10},
+			.frames = json_2dArrayToRectArray<RectArray, Rect, int>(imgcrop["effects"]["laser_sphere"]["frames"]),
+			.fspeed = imgcrop["effects"]["laser_sphere"]["fspeed"]
+		};
+
 		
 		logger("Creating player properties");
+
 
 		EntityProp playerprop
 		{
@@ -107,22 +131,19 @@ namespace Shmup
 			.frames = {}, // void
 			.fspeed = imgcrop["ships"]["red_ship"]["fspeed"]
 		};
-		EntityProp bulletlong
-		{
-			.texture = txtmgr.Construct("laser_long", renderer, imgpath + std::string{imgcrop["effects"]["laser_long"]["filename"]}),
-			.rect = {0,0, 10, 26},
-			.frames = json_2dArrayToRectArray<RectArray, Rect, int>(imgcrop["effects"]["laser_long"]["frames"]),
-			.fspeed = imgcrop["effects"]["laser_long"]["fspeed"]
-		};
 		FrameMap player_framemap;
 		player_framemap["idle"] = json_2dArrayToRectArray<RectArray, Rect, int>(imgcrop["ships"]["red_ship"]["frames"]["idle"]);
 		player_framemap["move_left"] = json_2dArrayToRectArray<RectArray, Rect, int>(imgcrop["ships"]["red_ship"]["frames"]["move_left"]);
 		player_framemap["move_right"] = json_2dArrayToRectArray<RectArray, Rect, int>(imgcrop["ships"]["red_ship"]["frames"]["move_right"]);
 
-		Gun* player_gun = new Gun{bulletlong};
-		ships.push_back(new ShipEx{playerprop, player_gun, player_framemap});
-		player_gun->SetSpawnPoint(&ships.front()->GetRect());
-		player_gun->SetTargets(nullptr);
+		Gun* player_gun = new Gun{laser_prop};
+
+		player_ship = new ShipEx{playerprop, player_gun, player_framemap};
+
+		player_gun->SetSpawnPoint(&player_ship->GetRect());
+		player_gun->SetTargets(&enemy_ships);
+		
+
 
 		bg = new BG{
 			EntityProp{
@@ -133,6 +154,11 @@ namespace Shmup
 			}, 
 			Vecf2{0, 100}
 		};
+
+		New_Mob();
+		enemy_ships.back()->SetVel(Vecf2{250, 0});
+		New_Mob();
+		enemy_ships.back()->SetVel(Vecf2{-100, 0});
 
 		//clouds_texture = new Actor{
 		//	txtmgr.Construct("clouds", renderer, imgpath + std::string{imgcrop["bg"]["clouds_trans"]["filename"]})
@@ -145,10 +171,12 @@ namespace Shmup
 		logger("Destructing <Shmup>...");
 		renderer = nullptr;
 
-		for(auto& i : ships)
+		delete player_ship;
+		player_ship = nullptr;
+		for(auto& enemy : enemy_ships)
 		{
-			delete i;
-			i = nullptr;
+			delete enemy;
+			enemy = nullptr;
 		}
 		delete bg;
 		bg = nullptr;
@@ -157,24 +185,49 @@ namespace Shmup
 
 	}
 
+	void ShmupGame::New_Mob()
+	{
+		logger("Creating new MOB");
+		EntityProp enemy_prop = {
+			.texture = txtmgr.Construct("mob", renderer, imgcrop["ships"]["enemy_small"]["filename"]),
+			.rect = {200, 100, 16*2, 16*2},
+			.frames = json_2dArrayToRectArray<RectArray, Rect, int>(imgcrop["ships"]["enemy_small"]["frames"]["idle"]),
+			.fspeed = 100
+		};
+		Gun* gun = new Gun{bomb_prop};
+		enemy_ships.push_back(new EnemyShip{enemy_prop, gun});
+		gun->SetSpawnPoint(&enemy_ships.back()->GetRect());
+
+	}
+	void ShmupGame::New_Mob2()
+	{
+
+	}
+	void ShmupGame::New_Boss()
+	{
+
+	}
+
 	void ShmupGame::HandleEvents(const SDL_Event& p_event)
 	{
-		ships.front()->HandleEvents(p_event); // first index: player
+		player_ship->HandleEvents(p_event);
 	}
 	void ShmupGame::Update(float p_dt)
 	{
 		bg->Update(p_dt);
-		for(auto& ship : ships)
+		player_ship->Update(p_dt);
+		for(auto& enemy : enemy_ships)
 		{
-			ship->Update(p_dt);
+			enemy->Update(p_dt);
 		}
 	}
 	void ShmupGame::Render()
 	{
 		bg->Render();
-		for(auto ship : ships)
+		player_ship->Render();
+		for(auto enemy : enemy_ships)
 		{
-			ship->Render();
+			enemy->Render();
 		}
 	}
 }

@@ -33,7 +33,7 @@
 			},
 			"fspeed" : 100
 		},
-		"enemy-small" :
+		"enemy_small" :
 		{
 			"filename" : "enemy-small.png",
 			"frames" : 
@@ -90,7 +90,7 @@
 			"frames" : [[0, 0, 5, 13], [5, 0, 5, 13]],
 			"fspeed" : 100
 		},
-		"enemy_sphere" :
+		"laser_sphere" :
 		{
 			"filename" : "enemy-big.png",
 			"frames" : [[0, 0, 0, 0]],

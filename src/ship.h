@@ -6,7 +6,7 @@
 
 namespace Shmup
 {
-	// pass gun to this baby, he won't make short of your precious pearls...He'll clean them after so..! 
+	// pass a big fat toy gun to this baby, he won't forget to clean it after so..! 
 	class Ship : public Actor
 	{
 	public:
@@ -45,7 +45,7 @@ namespace Shmup
 		{
 			switch(p_event.key.keysym.sym)
 			{
-				// fly my boy! soar high! (TOP of ship)
+				// fly! soar high! (TOP of ship)
 				case SDLK_j: gun->Fire(Vecf2{0, -250}, 10); break;
 				case SDLK_w: vel.y = -100; logger("<Ship><", id, "> moved up"); break;
 				case SDLK_a: vel.x = -100; logger("<Ship><", id, "> moved left"); break;
