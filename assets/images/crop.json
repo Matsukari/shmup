@@ -2,9 +2,9 @@
 	"path" : "/home/amon/programming/cpp/projs/shmup/assets/images",
 	"bg" :
 	{
-		"clouds_opaq" : { "filename" : "clouds.png" },
-		"clouds_trans" : { "filename" : "clouds-transparent.png" },
-		"desert" : { "filename" : "desert-background-looped.png" }
+		"clouds_opaq" : { "filename" : "bg/clouds.png" },
+		"clouds_trans" : { "filename" : "bg/clouds-transparent.png" },
+		"desert" : { "filename" : "bg/desert-backgorund-looped.png" }
 
 	},
 	"ships" : 
