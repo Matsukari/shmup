@@ -54,7 +54,6 @@ namespace Shmup
 
 	void Actor::Update(float p_dt)
 	{
-		Entity::Update(p_dt);
 		if (move_timer.SinceLastPeek() >= fspeed)
 		{
 			move_timer.Peek();

@@ -66,7 +66,6 @@ namespace Shmup
 
 	void Entity::Update(float p_dt)
 	{
-		curframe += (fspeed * p_dt) / 60.0f;
 	}
 
 

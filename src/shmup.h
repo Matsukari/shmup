@@ -8,6 +8,7 @@
 #include "effect.h"
 #include "ship.h"
 #include "shipex.h"
+#include "bg.h"
 #include "../lib/include/resource_manager.h"
 #include "../lib/json.hpp"
 
@@ -44,6 +45,8 @@ namespace Shmup
 	std::string fontpath = assetpath + "fonts/";
 
 
+
+
 	using ShipArray = std::vector<Ship*>;
 
 	class ShmupGame
@@ -57,18 +60,19 @@ namespace Shmup
 		void Render();
 
 	private:
+		// manager
 		ResourceManager<Texture> txtmgr;
 		SDL_Renderer* renderer;
+		nlohmann::json imgcrop;
+
+		// actors
 		ActorArray ships;
+		BG* bg;
+
+		// prop
 		FRect rect;
 		FRect spawnstart;
 
-		Actor* bg;
-		Actor* bg_buffer;
-		Actor* clouds;
-
-
-		nlohmann::json imgcrop;
 
 	};
 
@@ -120,24 +124,16 @@ namespace Shmup
 		player_gun->SetSpawnPoint(&ships.front()->GetRect());
 		player_gun->SetTargets(nullptr);
 
-		bg = new Actor{
+		bg = new BG{
 			EntityProp{
 				.texture = txtmgr.Construct("desert", renderer, imgpath + std::string{imgcrop["bg"]["desert"]["filename"]}),
 				.rect = rect,
-				.frames = RectArray{rect},
+				.frames = RectArray{FRect{0, 0, rect.w, rect.h}},
 				.fspeed = 0
-			}
+			}, 
+			Vecf2{0, 100}
 		};
-		bg_buffer = new Actor{
-			EntityProp{
-				.texture = txtmgr.Get("desert"),
-				.rect = {bg->rect.x, bg->rect.y - bg->rect.h, bg->rect.w, bg->rect.h},
-				.frames = RectArray{bg->rect},
-				.fspeed = 0
-			}
-		};
-		bg->SetVel(Vecf2{0, 100});
-		bg_buffer->SetVel(Vecf2{0, 100});
+
 		//clouds_texture = new Actor{
 		//	txtmgr.Construct("clouds", renderer, imgpath + std::string{imgcrop["bg"]["clouds_trans"]["filename"]})
 		//};
@@ -156,8 +152,6 @@ namespace Shmup
 		}
 		delete bg;
 		bg = nullptr;
-		delete bg_buffer;
-		bg_buffer = nullptr;
 
 		//clouds = nullptr;
 
@@ -170,7 +164,6 @@ namespace Shmup
 	void ShmupGame::Update(float p_dt)
 	{
 		bg->Update(p_dt);
-		bg_buffer->Update(p_dt);
 		for(auto& ship : ships)
 		{
 			ship->Update(p_dt);
@@ -179,7 +172,6 @@ namespace Shmup
 	void ShmupGame::Render()
 	{
 		bg->Render();
-		bg_buffer->Render();
 		for(auto ship : ships)
 		{
 			ship->Render();
