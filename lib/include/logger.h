@@ -24,22 +24,22 @@ public:
 	}
 
 	// functionate
+	// functionate
 	template<typename T>
-	void operator()(T arg)
+	void print(T arg)
 	{
 		if (data.is_open())
 		{
-			data << arg << " ";
+			data << arg;
 		}
 	}
 	template<typename T, typename... Ts>
 	void operator()(T arg, Ts... args)
 	{
-		this->operator()(arg);
-		this->operator()(args...);
-		this->operator()("\n");
+		print(arg);
+		(print(args), ...);
+		print('\n');
 	}
-
 
 	
 private:

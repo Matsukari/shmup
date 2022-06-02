@@ -12,27 +12,58 @@
 
 //std::shared_ptr<int> share()
 
-class Head
+
+
+#include <iostream>
+#include <string>
+#include <fstream>
+
+
+
+class Logger
 {
 public:
-	Head() {}
-	~Head() {}
+	Logger(std::string filen)
+	{
+		data.open(filen.c_str());
+	}
+	~Logger()
+	{
+		data.close();
+	}
 
-	void Heavy() { weight = 12311; }
+	// functionate
+	template<typename T>
+	void print(T arg)
+	{
+		if (data.is_open())
+		{
+			data << arg;
+		}
+	}
+	template<typename T, typename... Ts>
+	void operator()(T arg, Ts... args)
+	{
+		print(arg);
+		(print(args), ...);
+		print('\n');
+	}
 
-	int weight = 87;
+
+	
+private:
+	std::ofstream data;
 	
 };
-
-void needclass(Head head)
-{
-	std::cout << head.weight << std::endl;
-}
+Logger logger("logger.txt");
 
 
 int main()
 {
-	needclass((Head{}.Heavy()));
+	int i = 12;
+	logger("<Texture><", i, "> init", " ok");
+	logger("<Texture><", i, "> destruct");
+
 
 	std::cout << R"(END)" << std::endl;
 

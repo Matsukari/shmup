@@ -49,9 +49,12 @@ namespace Shmup
 	{
 		if (is_alive)
 		{
+			logger("bullet ACTOR UPDATING...");
 			Actor::Update(p_dt);
 
-			if (rect.y > 570)
+			logger("bullet rect.y > ........");
+
+			if (rect.y > 570 || rect.y < -10)
 			{
 				is_alive = false;
 				logger("bullet bounds hit");
@@ -60,16 +63,18 @@ namespace Shmup
 
 			if (targets)
 			{
-				//logger("Target : *targets");
+				logger("Target : *targets");
 				for (auto target : *targets)
 				{
-					//logger("checking target collission...");
-					if (SDL_HasIntersection(collrect, target->GetCollRect()))
+					logger("checking target collission...");
+					SDL_Rect a = SDL_Rect{(int)collrect.x, (int)collrect.y, (int)collrect.w, (int)collrect.h};
+					SDL_Rect b = SDL_Rect{(int)target->GetCollRect().x, (int)target->GetCollRect().y, (int)target->GetCollRect().w, (int)target->GetCollRect().h};
+					if (SDL_HasIntersection(&a, &b))
 					{
 						is_alive = false;
 						target->SetHealth(target->GetHealth() - dmg);
 
-						logger("Bullet hit");	
+						logger("Bullet intersected hit");	
 					}
 				}	
 			}

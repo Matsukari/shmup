@@ -35,7 +35,7 @@ namespace Shmup
 	Gun::Gun(const EntityProp& p_bulletprop, const FRect* p_spawnpoint) : 
 		Entity(p_bulletprop),
 		spawnpoint(p_spawnpoint),
-		capacity(1)
+		capacity(3)
 	{
 		logger("Initializing <Gun><", id, ">...");
 
@@ -57,14 +57,16 @@ namespace Shmup
 
 		logger("bullet preparing...");
 
-		ammo.emplace_back(bulletprop, targets, p_vel, p_dmg);
-		logger("Bullet fired");
-
 
 		if (ammo.size() > capacity)
 		{
 			logger("too many unhandled bullets left!");
+			return;
 		}
+
+		ammo.emplace_back(bulletprop, targets, p_vel, p_dmg);
+		logger("Bullet fired");
+
 
 		
 	}
@@ -74,12 +76,19 @@ namespace Shmup
 		// auto bullet might access invalid memory
 		if (ammo.size() > 0)
 		{
+			logger("bullet ammo.begin()...");
+
 			for(auto bullet = ammo.begin(); bullet != ammo.end(); bullet++)
 			{
+				logger("bullet UpDATING...");
+
 				bullet->Update(p_dt);
-				
+
+				logger("bullet ISALIVE...");
+
 				if ( ! bullet->IsAlive())
-				{					
+				{
+					logger("\nNOT ALIVE ERASING");					
 					ammo.erase(bullet);
 				}
 			}	

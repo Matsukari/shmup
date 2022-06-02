@@ -36,7 +36,7 @@ namespace Shmup
 
 	void EnemyShip::Update(float p_dt)
 	{
-		
+
 		gun->Update(p_dt);
 		if (move_timer.SinceLastPeek() >= fspeed)
 		{
@@ -53,11 +53,16 @@ namespace Shmup
 		{
 			attack_timer.Peek();
 			gun->Fire(Vecf2{0, 250}, 10);
+			logger("ENEMY FIRED");
 		}
 
 
-		true_vel = vel;
-
+		static bool once = true;
+		if (once)
+		{
+			true_vel = vel;
+			once = false;
+		}
 		if (rect.Right() > abs(vel.x*2))
 		{
 			true_vel.x = -vel.x;
