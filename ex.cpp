@@ -13,59 +13,36 @@
 //std::shared_ptr<int> share()
 
 
-
-#include <iostream>
-#include <string>
-#include <fstream>
+template<class T>
+using vector = std::vector<T>;
 
 
-
-class Logger
+class Actor
 {
 public:
-	Logger(std::string filen)
-	{
-		data.open(filen.c_str());
-	}
-	~Logger()
-	{
-		data.close();
-	}
+	Actor() { std::cout << "Actor initialized" << std::endl; }
+	~Actor() { std::cout << "Actor destructed" << std::endl; }
 
-	// functionate
-	template<typename T>
-	void print(T arg)
-	{
-		if (data.is_open())
-		{
-			data << arg;
-		}
-	}
-	template<typename T, typename... Ts>
-	void operator()(T arg, Ts... args)
-	{
-		print(arg);
-		(print(args), ...);
-		print('\n');
-	}
-
-
-	
-private:
-	std::ofstream data;
+	int x = 2;
 	
 };
-Logger logger("logger.txt");
-
-
 int main()
 {
-	int i = 12;
-	logger("<Texture><", i, "> init", " ok");
-	logger("<Texture><", i, "> destruct");
+	vector<int> points(4);
+	std::cout << "Before" << std::endl;
+	for(auto i = points.begin(); i !=)
+	{
+		std::cout << i << " ";
+		i = 82;
+	}
+	std::cout << std::endl << "After" << std::endl;
+	for(auto i : points)
+	{
+		std::cout << i << " ";
+	}
 
 
-	std::cout << R"(END)" << std::endl;
+	std::cout << std::endl << R"(END)" << std::endl;
 
 
 	return 0;
