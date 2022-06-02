@@ -57,12 +57,14 @@ namespace Shmup
 				logger("bullet bounds hit");
 			}
 
-			if (targets != nullptr)
+
+			if (targets)
 			{
+				//logger("Target : *targets");
 				for (auto target : *targets)
 				{
-					logger("checking target collission...");
-					if (Collided_Rect(collrect, target->GetCollRect()))
+					//logger("checking target collission...");
+					if (SDL_HasIntersection(collrect, target->GetCollRect()))
 					{
 						is_alive = false;
 						target->SetHealth(target->GetHealth() - dmg);

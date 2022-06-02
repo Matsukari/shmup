@@ -17,14 +17,15 @@ namespace Shmup
 		virtual void Render() override;
 
 	protected:
-		
+		Timer attack_timer;
+		Vecf2 true_vel;
 	};
 	EnemyShip::EnemyShip(const EntityProp& p_prop, Gun* p_gun) : 
 		Ship(p_prop, p_gun)
 	{
 		//gun = new Bullets()
 		logger("Initializing <EnemyShip><", id, ">...");
-
+		attack_timer.Peek();
 	}
 	EnemyShip::~EnemyShip()
 	{
@@ -35,16 +36,39 @@ namespace Shmup
 
 	void EnemyShip::Update(float p_dt)
 	{
-		Ship::Update(p_dt);
-
-		if (rect.Right() > vel.x*2)
+		
+		gun->Update(p_dt);
+		if (move_timer.SinceLastPeek() >= fspeed)
 		{
-			vel.x *= -1;
+			move_timer.Peek();
+			curframe++;
+			if (curframe >= frames.size())
+			{
+				curframe = 0;
+			}
+		}
+
+
+		if (attack_timer.SinceLastPeek() >= 400)
+		{
+			attack_timer.Peek();
+			gun->Fire(Vecf2{0, 250}, 10);
+		}
+
+
+		true_vel = vel;
+
+		if (rect.Right() > abs(vel.x*2))
+		{
+			true_vel.x = -vel.x;
 		}
 		else if (rect.Left() < 10)
 		{
-			vel.x *= -1;
+			true_vel.x = vel.x;
 		}
+
+		rect.x += true_vel.x * p_dt;
+		rect.y += true_vel.y * p_dt;
 	}
 	void EnemyShip::Render()
 	{

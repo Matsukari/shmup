@@ -74,6 +74,7 @@ namespace Shmup
 		// actors
 		Actor* player_ship;
 		ActorArray enemy_ships;
+		ActorArray enemy_targets; // the target of the enemy
 		BG* bg;
 
 		// prop
@@ -82,6 +83,7 @@ namespace Shmup
 
 		EntityProp laser_prop;
 		EntityProp bomb_prop;
+		EntityProp explode_prop;
 
 
 	};
@@ -143,6 +145,7 @@ namespace Shmup
 		player_gun->SetSpawnPoint(&player_ship->GetRect());
 		player_gun->SetTargets(&enemy_ships);
 		
+		enemy_targets.push_back(player_ship);
 
 
 		bg = new BG{
@@ -197,6 +200,7 @@ namespace Shmup
 		Gun* gun = new Gun{bomb_prop};
 		enemy_ships.push_back(new EnemyShip{enemy_prop, gun});
 		gun->SetSpawnPoint(&enemy_ships.back()->GetRect());
+		gun->SetTargets(&enemy_targets);
 
 	}
 	void ShmupGame::New_Mob2()

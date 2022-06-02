@@ -76,10 +76,8 @@ namespace Shmup
 		{
 			for(auto bullet = ammo.begin(); bullet != ammo.end(); bullet++)
 			{
-				//logger("BULLET UPDATING");
-
 				bullet->Update(p_dt);
-				//logger("BULLET IS ALIVE");
+				
 				if ( ! bullet->IsAlive())
 				{					
 					ammo.erase(bullet);
