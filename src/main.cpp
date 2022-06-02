@@ -6,7 +6,6 @@
 #include "../lib/include/ttf.h"
 #include "../lib/include/window.h"
 #include "../lib/include/collisions.h"
-#include "shmup.h"
 
 // g++ logger.o color.o timer.o shapes.o window.o texture.o ttf.o collisions.o sdlut.o main.o -std=c++17 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -o exe; ./exe
 
@@ -31,7 +30,6 @@ protected:
 	void On_Render();
 
 private:
-	Shmup::ShmupGame* shmup;
 	SDL_Event event;
 	TTF font;
 
@@ -55,7 +53,6 @@ App::App() :
 	font(renderer, "assets/fonts/sans.ttf", 24)
 {
 	has_quit = false;
-	shmup = new Shmup::ShmupGame(renderer, GetRect());
 
 }
 App::~App()
@@ -88,7 +85,6 @@ void App::On_Events()
 			logger(" Quitt");
 		}
 
-		shmup->HandleEvents(event);
 	}
 }
 void App::On_Update()
@@ -97,8 +93,6 @@ void App::On_Update()
 	dt = timer.SinceLastPeek() / 1000.0f;
 	fps = rendered_frames / (timer.Peek() / 1000.0f);
 
-	shmup->Update(dt);
-
 
 }
 void App::On_Render()
@@ -106,7 +100,6 @@ void App::On_Render()
 	SDL_SetRenderDrawColor(renderer, BLACK);
 	SDL_RenderClear(renderer);
 
-	shmup->Render();
 
 	Rect fontrect(0, 0, 15, 15);
 	font.Render(std::to_string(fps), fontrect);
