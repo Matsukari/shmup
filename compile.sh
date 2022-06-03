@@ -11,6 +11,7 @@ OBJECTS="
  lib/obj/ttf.o
  lib/obj/window.o
  lib/obj/resource_manager.o
+ lib/obj/math.o
  json.o
  src/obj/main.o"
 LINKERS="
@@ -18,7 +19,8 @@ LINKERS="
  -lSDL2
  -lSDL2_image
  -lSDL2_ttf
- -lSDL2_mixer"
+ -lSDL2_mixer
+ -lSDL2_gfx"
 CCFLAGS="
  -std=c++17
 "

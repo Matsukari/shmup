@@ -108,11 +108,14 @@ struct Rect : public SDL_Rect
 }; 
 
 
+struct FCircle;
 
 struct Circle : public SDL_Point
 {
 	Circle(int px, int py, int pr) noexcept { x = px; y = py; r = pr; }
+	Circle(FCircle pcircle) noexcept;
 	Circle() noexcept { x = 0; y = 0; r = 0; }
+	~Circle()=default;
 
 	int r;
 
@@ -126,6 +129,10 @@ struct Circle : public SDL_Point
 
 struct FCircle : public SDL_FPoint
 {
+	FCircle(float px, float py, float pr) noexcept { x = px; y = py; r = pr; }
+	FCircle(Circle pcircle) noexcept;
+	FCircle() noexcept { x = 0.0f; y = 0.0f; r = 0.0f; }
+	~FCircle()=default;
 	float r;
 
 	float TopLeftX() const noexcept { return x - r; }

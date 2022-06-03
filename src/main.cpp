@@ -295,6 +295,7 @@ void Event::Update()
 }
 
 
+#include <SDL2/SDL2_gfxPrimitives.h>
 
 class App : public Window, public Event
 {
@@ -319,10 +320,9 @@ private:
 	int rendered_frames = 0;
 
 
-	Rect a;
-	Rect b;
+	FCircle a;
+	FCircle b;
 
-	Rect inter;
 };
 
 App::App() :
@@ -333,13 +333,12 @@ App::App() :
 		720, 
 		550}, 
 		SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE, 
-		SDL_RENDERER_ACCELERATED),
+		SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED),
 	font(renderer, "assets/fonts/sans.ttf", 24)
 {
 	//SDL_StartTextInput();
-	a = Rect{100, 100, 100, 100};
-	b = Rect{200, 200, 100, 100};
-	inter = Rect{0, 0, 0, 0};
+	a = FCircle{100, 100, 60};
+	b = FCircle{200, 200, 60};
 
 }
 App::~App()
@@ -376,10 +375,14 @@ void App::On_Update()
 
 	Event::Update();
 
-	a.x = Get_MousePos().x - (a.w / 2);
-	a.y = Get_MousePos().y - (a.h / 2);
+	Circle temp = a;
+	temp.x = Get_MousePos().x;
+	temp.y = Get_MousePos().y;
 
-	SDL_IntersectRect(&a, &b, &inter);
+	if (!Has_Collided(temp, b))
+	{
+		a = temp;
+	}
 
 }
 
@@ -388,6 +391,7 @@ std::string ts(const T& n)
 {
 	return std::move(std::to_string(n));
 }
+
 void App::On_Render()
 {
 	SDL_SetRenderDrawColor(renderer, BLACK);
@@ -398,15 +402,15 @@ void App::On_Render()
 	font.Render(std::to_string(fps), fontrect);
 
 
-	SDL_SetRenderDrawColor(renderer, WHITE);
-	SDL_RenderFillRect(renderer, &b);
+	//SDL_SetRenderDrawColor(renderer, WHITE);
+	filledCircleRGBA(renderer, b.x, b.y, b.r,  255, 255, 255, 255);
 
-	SDL_SetRenderDrawColor(renderer, GREEN);
-	SDL_RenderFillRect(renderer, &a);
 
-	SDL_SetRenderDrawColor(renderer, RED);
-	SDL_RenderFillRect(renderer, &inter);
-	
+	//SDL_SetRenderDrawColor(renderer, GREEN);
+	filledCircleRGBA(renderer, a.x, a.y, a.r,  0, 255, 0, 255);
+
+
+
 	rendered_frames++;
 }
 

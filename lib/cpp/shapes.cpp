@@ -15,3 +15,18 @@ Rect::Rect(SDL_FRect prect) noexcept
 	w = prect.w;
 	h = prect.h;
 }
+
+
+Circle::Circle(FCircle pcircle) noexcept
+{
+	x = pcircle.x;
+	y = pcircle.y;
+	r = pcircle.r;
+}
+
+FCircle::FCircle(Circle pcircle) noexcept
+{
+	x = pcircle.x;
+	y = pcircle.y;
+	r = pcircle.r;
+}
