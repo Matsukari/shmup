@@ -15,51 +15,64 @@ void SDL_SetRenderDrawColor(SDL_Renderer* p_renderer, SDL_Color p_color, Uint8 p
 {
 	SDL_SetRenderDrawColor(p_renderer, p_color.r, p_color.g, p_color.b, p_alpha);
 }
+
+#define KEY_REPEAT_ENDT 100
+#define MOUSE_REPEAT_ENDT 100
+
 class Event
 {
 public:
 	Event();
 	~Event();
 
-	void Set_KeyHoldST(Uint32 p_ms); // ms to start hold
-	void Set_KeyRepeatFT(Uint32 p_ms); // repeat fade time
+	void Set_KeyRepeatEndT(Uint32 p_ms)   noexcept { key_repeatendt = p_ms; } 
+	void Set_MouseRepeatEndT(Uint32 p_ms) noexcept { mouse_repeatendt = p_ms; }
+
 	bool Set_InputCursor(SDL_Renderer* p_renderer, Texture* p_texture);
 
 	void TextInput_Start();
 	void TextInput_End();
 
-	// Occurs non-continiously, only after MOUSEBUTTONUP, safe to say, only once after button is up. Also within up.
-	virtual void Handle_Mouse() {}
-	virtual void Handle_Keyboard() {}
-	virtual void Handle_Text_Input() {}
-
+	// called after HandleEvents
 	virtual void Update();
+	// called under SDL_PollEvent()
+	virtual void HandleEvents();
 
 	const static SDL_Event& GetEvent() { return event; }
 
-	SDL_Point Get_MousePos() const noexcept;
-	SDL_Point Get_MouseHeldStartPos() const noexcept;
-	SDL_Point Get_MouseHeldEndPos() const noexcept;
+	SDL_Keycode Get_CurrKey() const noexcept { return curr_key; }
+	SDL_Keycode Get_PrevKey() const noexcept { return prev_key; }
+	Uint32 Get_KeyRepeats()   const noexcept { return key_repeats; }
+	Uint32 Get_MouseRepeats() const noexcept { return mouse_repeats; }
+
+	Uint32 Get_KeyHeldT() 	  const noexcept { return key_heldt; }
+	Uint32 Get_MouseHeldT()   const noexcept { return mouse_heldt; }
+	Uint32 Get_KeyUnheldT()   const noexcept { return key_unheldt; }
+	Uint32 Get_MouseUnheldT() const noexcept { return mouse_unheldt; }
+
+	SDL_Point Get_MousePos() 	const noexcept { return mouse_pos; }
+	SDL_Point Get_MouseStart() 	const noexcept { return mouse_startpos; }
+	SDL_Point Get_MouseEnd() 	const noexcept { return mouse_endpos; }
+	SDL_Point Get_Wheel() 		const noexcept { return wheel; }
+
+	const std::string& Get_TextInput() const noexcept { return textinput; }
 
 
-	SDL_Keycode Get_CurrKey() const noexcept;
-	SDL_Keycode Get_PrevKey() const noexcept;
-	Uint32 Get_KeyRepeats() const noexcept;
-	Uint32 Get_MOuseRepeats() const noexcept;
+	const std::vector<SDL_Point>&   Get_MousePosRec() const noexcept { return mouse_posrec; }
+	const std::vector<Uint8>&       Get_MouseButRec() const noexcept { return mouse_butrec; }
+	const std::vector<SDL_Keycode>& Get_KeyRec() const noexcept { return key_rec; }
 
-	Uint32 Get_KeyHeldT() const noexcept;
-	Uint32 Get_MouseHeldT() const noexcept;
-
-	Uint32 Get_KeyUnheldT() const noexcept;
-	Uint32 Get_MouseUnheldT() const noexcept;
 
 	bool Has_Quit() const noexcept { return has_quit; }
 
 protected:
 	static SDL_Event event;
-	SDL_Keycode current_key; // the key got after keydown, not fading
+
+private:
+	SDL_Keycode curr_key; // the key got after keydown, not fading
 	SDL_Keycode prev_key;
 	Uint32 		key_repeats;
+	Uint32 		mouse_repeats;
 
 	// time
 	Uint32 key_heldt;
@@ -76,9 +89,9 @@ protected:
 	Rect mouse_resrect; // resulting rect after holding mouse button
 
 	// text input
-	std::vector<std::string> textstr;
-	size_t cur_line;
-	bool   has_newline;
+	std::string textinput;
+	//unsigned int curr_line;
+	//bool   has_newline;
 
 	// history cache
 	std::vector<SDL_Point> mouse_posrec; // where mouse is hold in position, record
@@ -94,18 +107,29 @@ private:
 	unsigned int key_rec_max;
 	unsigned int mouse_rec_max;
 
+	Uint32 key_repeatendt;
+	Uint32 mouse_repeatendt;
+
 
 	Timer key_heldtimer;
-	Timer key_unheldtimer;
+	Timer mouse_heldtimer;
+
+private:
+	bool is_keydown;
+	bool is_mousedown;
+
 
 };
 SDL_Event Event::event;
 
 Event::Event()
 {
-	current_key = SDLK_BACKSPACE;
+	// key
+	curr_key = SDLK_BACKSPACE;
 	prev_key = SDLK_BACKSPACE;
 	key_repeats = 0;
+	mouse_repeats = 0;
+
 
 	// time
 	key_heldt = 0;
@@ -121,74 +145,158 @@ Event::Event()
 	wheel 		  = SDL_Point{0, 0};
 	mouse_resrect = Rect{0, 0, 0, 0};
 
-	mouse_rec_max = 30;
+	// record max
 	key_rec_max = 30;
+	mouse_rec_max = 30;
 
 	// history cache
 	mouse_posrec.resize(mouse_rec_max);
 	mouse_butrec.resize(mouse_rec_max);
 	key_rec.resize(key_rec_max);
+	mouse_posrec.shrink_to_fit();
+	mouse_butrec.shrink_to_fit();
+	key_rec.shrink_to_fit();
 
+	// array index
+	key_rec_idx = 0;
+	mouse_rec_idx = 0;
+
+	key_repeatendt = KEY_REPEAT_ENDT;
+	mouse_repeatendt = MOUSE_REPEAT_ENDT;
+
+	// timer
+	key_heldtimer.Peek();
+	mouse_heldtimer.Peek();
+
+	// bool
 	has_quit = false;
+	is_keydown = false;
+	is_mousedown = false;
+
 
 }
 Event::~Event()
 {
 	
 }
+
+
+void Event::HandleEvents()
+{
+	if(event.type == SDL_QUIT ||
+	  (event.type == SDL_WINDOWEVENT && event.window.event   == SDL_WINDOWEVENT_CLOSE) ||
+	  (event.type == SDL_KEYDOWN     && event.key.keysym.sym == SDLK_ESCAPE))
+	{
+		has_quit = true;
+		logger("In Event; has_quit");
+	}
+
+	switch(event.type)
+	{
+	case SDL_MOUSEBUTTONDOWN:
+	{
+		is_mousedown = true;
+		mouse_startpos = mouse_pos;
+		mouse_heldtimer.Peek();
+
+		if (mouse_unheldt && mouse_unheldt < mouse_repeatendt)
+			mouse_repeats++;
+		else
+			mouse_repeats = 0;
+
+		// record
+		mouse_posrec[mouse_rec_idx] = mouse_pos;
+		mouse_butrec[mouse_rec_idx] = event.button.button;
+
+		// index for next record
+		mouse_rec_idx = (mouse_rec_idx + 1) % mouse_rec_max; // roll back when exceeding max capacity
+		break;
+	}
+	case SDL_MOUSEBUTTONUP:
+	{
+		is_mousedown = false;
+		mouse_endpos = mouse_pos;
+		mouse_heldtimer.Peek();
+
+		break;
+	}
+	case SDL_MOUSEWHEEL:
+	{
+		wheel.x = event.wheel.x;
+		wheel.y = event.wheel.y;
+		break;
+	}
+	case SDL_KEYDOWN:
+	{
+		is_keydown = true;
+		prev_key = curr_key;
+		curr_key = event.key.keysym.sym;
+
+		// record
+		key_rec[key_rec_idx] = curr_key;
+
+		// check repeat
+		if (!event.key.repeat) key_heldtimer.Peek();
+		
+		// key must be unheld must be active (not zero) before comparing
+		if (prev_key == curr_key && key_unheldt && key_unheldt < key_repeatendt)
+			key_repeats++;
+		else
+			key_repeats = 0;
+
+		// erase char in text input
+		if (curr_key == SDLK_BACKSPACE && textinput.size() > 0)
+		{
+			textinput.pop_back();
+		}
+		else if (curr_key == SDLK_KP_ENTER)
+		{
+			textinput += '\n';
+		}
+	
+		break;
+	}
+	case SDL_KEYUP:
+	{
+		is_keydown = false;
+		key_heldtimer.Peek();
+		break;
+	}
+	case SDL_TEXTINPUT:
+	{
+		textinput += event.text.text;
+		break;
+	}
+	default:
+	{
+		wheel.x = 0;
+		wheel.y = 0;
+		break;
+	}
+	}
+}
+
 void Event::Update()
 {
 	// get mouse position periodicallt
 	SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
 
-	// polymorph pointer to SDL_Event
-	while(SDL_PollEvent(&event))
-	{
-		if(event.type == SDL_QUIT ||
-		  (event.type == SDL_WINDOWEVENT && event.window.event   == SDL_WINDOWEVENT_CLOSE) ||
-		  (event.type == SDL_KEYDOWN     && event.key.keysym.sym == SDLK_ESCAPE))
-		{
-			has_quit = true;
-			logger("In Event; has_quit");
-		}
-		switch(event.type)
-		{
-		case SDL_MOUSEBUTTONDOWN:
-		{
-			mouse_startpos = mouse_pos;
 
-			// record
-			mouse_posrec[mouse_rec_idx] = mouse_pos;
-			mouse_butrec[mouse_rec_idx] = event.button.button;
+	key_heldt = key_heldtimer.SinceLastPeek() * is_keydown; // active when key is pressed
+	key_unheldt = key_heldtimer.SinceLastPeek() * !is_keydown; // active when key is NOT pressed
 
-			// index for next record
-			mouse_rec_idx = (mouse_rec_idx + 1) % mouse_rec_max; // roll back when exceeding max capacity
-		}
-		case SDL_MOUSEBUTTONUP:
-		{
-			mouse_endpos = mouse_pos;
-		}
+	mouse_heldt = mouse_heldtimer.SinceLastPeek() * is_mousedown;
+	mouse_unheldt = mouse_heldtimer.SinceLastPeek() * !is_mousedown;
 
-		case SDL_KEYDOWN:
-		{
-			key_heldtimer.Peek();
-			key_unheldt = key_unheldtimer.SinceLastPeek();
-			
-		}
-		case SDL_KEYUP:
-		{
-			key_unheldtimer.Peek();
-			key_heldt = key_heldtimer.SinceLastPeek();
-		}
+	key_repeats *= (key_unheldt < key_repeatendt); // active until 'unheld time' is within 'endtime'
+	mouse_repeats *= (mouse_unheldt < mouse_repeatendt);
 
-		}
-	}
 
 }
 
 
 
-class App : public Window
+class App : public Window, public Event
 {
 public:
 	App();
@@ -202,15 +310,19 @@ protected:
 	void On_Render();
 
 private:
-	Event event;
 	TTF font;
 
 	Timer timer;
 
-	bool has_quit = false;
 	float dt = 0;
 	float fps = 0;
 	int rendered_frames = 0;
+
+
+	Rect a;
+	Rect b;
+
+	Rect inter;
 };
 
 App::App() :
@@ -224,11 +336,16 @@ App::App() :
 		SDL_RENDERER_ACCELERATED),
 	font(renderer, "assets/fonts/sans.ttf", 24)
 {
-	has_quit = false;
+	//SDL_StartTextInput();
+	a = Rect{100, 100, 100, 100};
+	b = Rect{200, 200, 100, 100};
+	inter = Rect{0, 0, 0, 0};
 
 }
 App::~App()
 {
+	//SDL_StopTextInput();
+
 	//delete shmup;
 	logger("Ended App");
 }
@@ -236,7 +353,7 @@ App::~App()
 void App::Exe()
 {
 	logger("App starting to run");
-	while(!has_quit)
+	while(!Event::Has_Quit())
 	{
 		On_Events();
 		On_Update();
@@ -248,15 +365,7 @@ void App::On_Events()
 {
 	while(SDL_PollEvent(&event))
 	{
-		if(event.type == SDL_QUIT ||
-		  (event.type == SDL_WINDOWEVENT && event.window.event   == SDL_WINDOWEVENT_CLOSE) ||
-		  (event.type == SDL_KEYDOWN     && event.key.keysym.sym == SDLK_ESCAPE))
-		{
-			has_quit = true;
-			
-			logger(" Quitt");
-		}
-
+		Event::HandleEvents();
 	}
 }
 void App::On_Update()
@@ -265,7 +374,19 @@ void App::On_Update()
 	dt = timer.SinceLastPeek() / 1000.0f;
 	fps = rendered_frames / (timer.Peek() / 1000.0f);
 
+	Event::Update();
 
+	a.x = Get_MousePos().x - (a.w / 2);
+	a.y = Get_MousePos().y - (a.h / 2);
+
+	SDL_IntersectRect(&a, &b, &inter);
+
+}
+
+template<class T>
+std::string ts(const T& n)
+{
+	return std::move(std::to_string(n));
 }
 void App::On_Render()
 {
@@ -275,6 +396,16 @@ void App::On_Render()
 
 	Rect fontrect(0, 0, 15, 15);
 	font.Render(std::to_string(fps), fontrect);
+
+
+	SDL_SetRenderDrawColor(renderer, WHITE);
+	SDL_RenderFillRect(renderer, &b);
+
+	SDL_SetRenderDrawColor(renderer, GREEN);
+	SDL_RenderFillRect(renderer, &a);
+
+	SDL_SetRenderDrawColor(renderer, RED);
+	SDL_RenderFillRect(renderer, &inter);
 	
 	rendered_frames++;
 }
