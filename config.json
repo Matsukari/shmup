@@ -1,10 +1,29 @@
 {
-		"size" :
-		{
-			"window" : [720, 550],
-			"red_ship" : [32, 48],
-			"bullet_long" : [10, 26],
-			"bullet_sphere" : [5, 5],
+	"use_texture" :
+	{
+		"bg" : "bg/desert-backgorund-looped.png",
+		"clouds" : "bg/clouds-transparent.png",
+		"player" : "ship.png",
+		"enemy_weak" : "enemy-small.png",
+		"enemy_elite" : "enemy-medium.png",
+		"enemy_boss" : "enemy-big.png",
 
-		}
+		"player_bullet" : "laser-long.png",
+		"enemy_bullet" : "laser-sphere.png",
+		"special_bullet" : "X",
+
+		"bullet_hit" : "explosion.png",
+		"ship_explosion" : "explosion.png"
+
+	},
+
+	"size" :
+	{
+		"screen" : [720, 550],
+		"player" : [32, 48],
+		"enemy_weak" : [16, 16],
+		"player_bullet" : [10, 26],
+		"enemy_bullet" : [5, 5]
+	},
+	"scale" : 1
 }

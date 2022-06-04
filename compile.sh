@@ -13,15 +13,19 @@ OBJECTS="
  lib/obj/resource_manager.o
  lib/obj/math.o
  lib/obj/event.o
- json.o
+ lib/obj/json.o
+
+ src/obj/settings.o
+ src/obj/visual_object.o
+ src/obj/actor.o
+ src/obj/bullet.o
  src/obj/main.o"
 LINKERS="
  -lSDL2main
  -lSDL2
  -lSDL2_image
  -lSDL2_ttf
- -lSDL2_mixer
- -lSDL2_gfx"
+ -lSDL2_mixer"
 CCFLAGS="
  -std=c++17
 "

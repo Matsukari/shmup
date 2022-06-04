@@ -8,21 +8,13 @@
 #include "../lib/include/collisions.h"
 #include "../lib/include/event.h"
 #include "../lib/include/resource_manager.h"
+#include "shmup.h"
 #include <vector>
 #include <memory>
 
 // g++ logger.o color.o timer.o shapes.o window.o texture.o ttf.o collisions.o sdlut.o main.o -std=c++17 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -o exe; ./exe
 
 
-void SDL_SetRenderDrawColor(SDL_Renderer* p_renderer, SDL_Color p_color, Uint8 p_alpha = 255)
-{
-	SDL_SetRenderDrawColor(p_renderer, p_color.r, p_color.g, p_color.b, p_alpha);
-}
-
-
-
-#include <SDL2/SDL2_gfxPrimitives.h>
-using Texture_ptr = std::shared_ptr<Texture>;
 
 class App : public Window, public Event
 {
@@ -39,21 +31,12 @@ protected:
 
 private:
 	TTF font;
-	ResourceManager<Texture> txtmgr;
-	Texture_ptr texture;
-
 	Timer timer;
+	Shmup::ShmupGame* shmup;
 
 	float dt = 0;
 	float fps = 0;
 	int rendered_frames = 0;
-
-
-	//FCircle a;
-	//FCircle b;
-
-	Rect a;
-
 };
 
 App::App() :
@@ -67,21 +50,12 @@ App::App() :
 		SDL_RENDERER_ACCELERATED),
 	font(renderer, "assets/fonts/sans.ttf", 64)
 {
-	SDL_StartTextInput();
-	//a = FCircle{100, 100, 60};
-	//b = FCircle{200, 200, 60};
-
-	a = Rect{100, 100, 200, 200};
-
-	texture = txtmgr.Construct("1", this, "assets/images/ship.png");
-	//texture->Lock();
-
+	shmup = new Shmup::ShmupGame(this/*Window*/, Window::Get_Rect());
 }
 App::~App()
 {
-	SDL_StopTextInput();
-
-	//delete shmup;
+	delete shmup;
+	shmup = nullptr;
 	logger("Ended App");
 }
 
@@ -102,6 +76,7 @@ void App::On_Events()
 	{
 		Event::HandleEvents();
 	}
+	shmup->HandleEvents(this/*Event*/);
 }
 void App::On_Update()
 {
@@ -110,24 +85,9 @@ void App::On_Update()
 	fps = rendered_frames / (timer.Peek() / 1000.0f);
 
 	Event::Update();
-
-	/*Circle temp = a;
-	temp.x = Get_MousePos().x;
-	temp.y = Get_MousePos().y;
-
-	if (!Has_Collided(temp, b))
-	{
-		a = temp;
-	}*/
+	shmup->Update(dt);
 
 
-
-}
-
-template<class T>
-std::string ts(const T& n)
-{
-	return std::move(std::to_string(n));
 }
 
 void App::On_Render()
@@ -136,10 +96,9 @@ void App::On_Render()
 	SDL_RenderClear(renderer);
 
 
-	Rect fontrect(0, 0, 15, 15);
-	font.Render(std::to_string(fps), fontrect);
+	font.Render(ts(fps), Rect{0, 0, 15, 15});
 
-	font.Render(Event::Get_TextInput(), Rect(300, 200,15, 15));
+	//font.Render(Event::Get_TextInput(), Rect(300, 200,15, 15));
 
 
 	//SDL_SetRenderDrawColor(renderer, WHITE);
@@ -151,7 +110,9 @@ void App::On_Render()
 	//a.w = texture->Get_W();
 	//a.h = texture->Get_H();
 
-	texture->Render(a);
+	//texture->Render(a);
+
+	shmup->Render();
 
 
 

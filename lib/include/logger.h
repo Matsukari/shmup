@@ -37,7 +37,8 @@ public:
 	{
 		print(arg);
 		(print(args), ...);
-		print('\n');
+		print("\n");
+		data.flush();
 	}
 
 	

@@ -2,26 +2,26 @@
 #define actor_h
 
 #include "../lib/include/timer.h"
-#include "entity.h"
+#include "visual_object.h"
 
 
 namespace Shmup
 {
-	class Actor : public Entity
+	class Actor : public VisualObject
 	{
 	public:
-		Actor(const EntityProp& p_prop);
+		Actor(const VisualObject& p_obj);
 		virtual ~Actor() override;
 
-		int GetHealth() const noexcept { return health; }
-		Vec2 GetVel() const noexcept { return vel; }
-		FRect GetCollRect() const noexcept { return collrect; }
+		int Get_Health() const noexcept { return health; }
+		FVec2 Get_Vel() const noexcept { return vel; }
+		FRect Get_CollRect() const noexcept { return collrect; }
 
-		void SetHealth(int p_health) noexcept { health = p_health; }
-		void SetVel(Vec2 p_vel) noexcept { vel = p_vel; }
-		void SetCollRect(FRect p_collrect) noexcept { collrect = p_collrect; }
+		void Set_Health(int p_health) noexcept { health = p_health; }
+		void Set_Vel(FVec2 p_vel) noexcept { vel = p_vel; }
+		void Set_CollRect(const FRect& p_collrect) noexcept { collrect = p_collrect; }
 
-		bool IsAlive() const noexcept { return is_alive; }
+		bool Is_Alive() const noexcept { return is_alive; }
 		virtual void Update(float p_dt) override;
 
 	protected:
@@ -29,46 +29,11 @@ namespace Shmup
 		int health;
 		FRect collrect;
 
-		Vecf2 vel;
+		FVec2 vel;
 
 		Timer move_timer;
 	};
 	using ActorArray = std::vector<Actor*>;
 
-	Actor::Actor(const EntityProp& p_prop) :
-		Entity(p_prop)
-	{
-		logger("Initializing <Actor><", id, ">...");
-
-		is_alive = true;
-		health = 0;
-		collrect = rect;
-		
-		vel = Vec2{0, 0};
-		move_timer.Peek();
-	}
-	Actor::~Actor()
-	{
-		logger("Destructing <Actor><", id, ">...");
-	}
-
-	void Actor::Update(float p_dt)
-	{
-		if (move_timer.SinceLastPeek() >= fspeed)
-		{
-			move_timer.Peek();
-			curframe++;
-			if (curframe >= frames.size())
-			{
-				curframe = 0;
-			}
-		}
-
-		rect.x += vel.x * p_dt;
-		rect.y += vel.y * p_dt;
-
-
-
-	}
 
 }

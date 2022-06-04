@@ -17,30 +17,31 @@ template<class T>
 using vector = std::vector<T>;
 
 
-class Actor
+class OBJ
 {
 public:
-	Actor() { std::cout << "Actor initialized" << std::endl; }
+	OBJ(int px, int ph) : x(px), h(ph) {}
+	~OBJ() {}
+
+	int x;
+	int h;
+	
+};
+class Actor : public OBJ
+{
+public:
+	Actor(const OBJ& obj, int pp) : OBJ(obj), SetP(pp) { std::cout << "Actor initialized" << std::endl; }
 	~Actor() { std::cout << "Actor destructed" << std::endl; }
 
-	int x = 2;
+	void SetP(int pp) { p = pp; }
 	
+	int p;
 };
 int main()
 {
-	vector<int> points(4);
-	std::cout << "Before" << std::endl;
-	for(auto i = points.begin(); i !=)
-	{
-		std::cout << i << " ";
-		i = 82;
-	}
-	std::cout << std::endl << "After" << std::endl;
-	for(auto i : points)
-	{
-		std::cout << i << " ";
-	}
+	const Actor actor(OBJ{12 , 99});
 
+	std::cout << actor.p << std::endl;
 
 	std::cout << std::endl << R"(END)" << std::endl;
 

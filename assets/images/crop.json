@@ -1,102 +1,90 @@
 {
 	"path" : "/home/amon/programming/cpp/projs/shmup/assets/images",
-	"bg" :
-	{
-		"clouds_opaq" : { "filename" : "bg/clouds.png" },
-		"clouds_trans" : { "filename" : "bg/clouds-transparent.png" },
-		"desert" : { "filename" : "bg/desert-backgorund-looped.png" }
 
+
+	"player" :
+	{
+		"frames" : 
+		{
+			"idle" :
+			[
+				[32,  0, 16, 24],
+				[32, 24, 16, 24]
+			],
+			"move_left" : 
+			[
+				[16,  0, 16, 24],
+				[16, 24, 16, 24],
+				[0,   0, 16, 24],
+				[0,  24, 16, 24]
+			],
+			"move_right" :
+			[
+				
+				[48,  0, 16, 24],
+				[48, 24, 16, 24],
+				[64,  0, 16, 24],
+				[64, 24, 16, 24]
+			]
+
+		},
+
+		"fspeed" : 50
 	},
-	"ships" : 
+	
+	"enemy_weak" :
 	{
-		"enemy_big" :
-		{
-			"filename" : "enemy-big.png",
-			"frames" : 
-			{ 
-				"idle": 
-				[
-					[0, 0, 0, 0]
-				] 
-			},
-			"fspeed" : 100
-		},
-		"enemy_medium" :
-		{
-			"filename" : "enemy-medium.png",
-			"frames" : 
-			{ 
-				"idle": 
-				[
-					[0, 0, 0, 0]
-				] 
-			},
-			"fspeed" : 100
-		},
-		"enemy_small" :
-		{
-			"filename" : "enemy-small.png",
-			"frames" : 
-			{ 
-				"idle": 
-				[
-					[0, 0, 16, 16],
-					[16, 0, 16, 16]
+		"frames" : 
+		{ 
+			"idle": 
+			[
+				[0, 0, 16, 16],
+				[16, 0, 16, 16]
 
-				] 
-			},
-			"fspeed" : 100
+			] 
 		},
-		"red_ship" :
-		{
-			"filename" : "ship.png",
-			"frames" : 
-			{
-				"idle" :
-				[
-					[32,  0, 16, 24],
-					[32, 24, 16, 24]
-				],
-				"move_left" : 
-				[
-					[16,  0, 16, 24],
-					[16, 24, 16, 24],
-					[0,   0, 16, 24],
-					[0,  24, 16, 24]
-				],
-				"move_right" :
-				[
-					
-					[48,  0, 16, 24],
-					[48, 24, 16, 24],
-					[64,  0, 16, 24],
-					[64, 24, 16, 24]
-				]
-
-			},
-
-			"fspeed" : 50
-		}
+		"fspeed" : 100
 	},
-	"effects" :
+	"enemy_elite" :
 	{
-		"explosion" :
-		{
-			"filename" : "enemy-big.png",
-			"frames" : [[0, 0, 0, 0]],
-			"fspeed" : 100
+		"frames" : 
+		{ 
+			"idle": 
+			[
+				[0, 0, 0, 0]
+			] 
 		},
-		"laser_long" :
-		{
-			"filename" : "laser-long.png",
-			"frames" : [[0, 0, 5, 13], [5, 0, 5, 13]],
-			"fspeed" : 100
+		"fspeed" : 100
+	},
+	"enemy_boss" :
+	{
+		"frames" : 
+		{ 
+			"idle": 
+			[
+				[0, 0, 0, 0]
+			] 
 		},
-		"laser_sphere" :
-		{
-			"filename" : "laser-sphere.png",
-			"frames" : [[0, 0, 5, 5], [5, 0, 5, 5]],
-			"fspeed" : 100
-		}
+		"fspeed" : 100
+	},
+
+
+	"player_bullet" :
+	{
+		"frames" : [[0, 0, 5, 13], [5, 0, 5, 13]],
+		"fspeed" : 100
+	},
+	"enemy_bullet" :
+	{
+		"frames" : [[0, 0, 5, 5], [5, 0, 5, 5]],
+		"fspeed" : 100
+	},
+	
+
+	"ship_explosion" :
+	{
+		"frames" : [[0, 0, 0, 0]],
+		"fspeed" : 100
 	}
+
 }
