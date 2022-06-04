@@ -19,7 +19,7 @@ public:
 	TTF(SDL_Renderer* p_renderer, std::string p_path, int p_size);
 	~TTF();
 
-	void Render(std::string p_text, SDL_Rect p_rect, int p_margin = 0) const;
+	void Render(const std::string& p_text, const SDL_Rect& p_rect, int p_margin = 0, int p_marginy = 0) const;
 
 protected:
 	SDL_Renderer* renderer;

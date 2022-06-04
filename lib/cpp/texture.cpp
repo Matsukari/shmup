@@ -37,7 +37,7 @@ SDL_Texture* Load_Texture(SDL_Renderer* renderer, const std::string& path)
 	return texture;
 }
 // for format, use SDL_GetWindowPixelFormal
-SDL_Texture* Load_Texture(SDL_Renderer* renderer, Uint32 format, const std::string& path, void* pixels, int& pitch, int& imgw, int& imgh)
+SDL_Texture* Load_Texture(SDL_Renderer* renderer, const std::string& path, Uint32 format, void*& pixels, int& pitch, int& imgw, int& imgh)
 {
 	SDL_Surface* surface = Load_Surface(path);
 	SDL_Texture* texture = nullptr;
@@ -85,7 +85,9 @@ SDL_Texture* Load_Texture(SDL_Renderer* renderer, Uint32 format, const std::stri
 	                imgw = formatted->w;
 	                imgh = formatted->h;
 
-				} // Locking texture
+	                logger("locked Texture");
+
+				} // Locking texture*/
                
 			} // creating blank texture
 
@@ -110,21 +112,16 @@ int Texture::instances = 0;
 
 
 // Texture functions _______________________________________________________________________________________________________________
-Texture::Texture(SDL_Renderer* p_renderer, const std::string& p_path)
+Texture::Texture(Window* p_window, const std::string& p_path)
 {
 	instances++;
 	id = instances;
 
 	angle  = 360.0;
-	center = nullptr;
 	flip = SDL_FLIP_NONE;
-	path = "UnLoaded";
-	renderer = nullptr;
-	texture  = nullptr;
-
-	path 	  = p_path;
-	renderer  = p_renderer;
-	texture = Load_Texture(renderer, path);
+	path = p_path;
+	renderer = p_window->Get_Renderer();
+	texture = Load_Texture(renderer, path);//, SDL_GetWindowPixelFormat(p_window->Get_Window()), pixels, pitch, w, h);
 }
 Texture::~Texture()
 {
@@ -136,7 +133,6 @@ Texture::~Texture()
 		logger("Destroyed <Texture><" + std::to_string(id) + "> : " + path);
 	}
 	renderer = nullptr;
-	center = nullptr;
 }
 
 
@@ -145,9 +141,9 @@ SDL_Texture* Texture::Get_SDL_Texture() const noexcept
 	return texture;
 }	
 
-void Texture::Render(const SDL_Rect& p_rect, const SDL_Rect* p_clip) const noexcept
+void Texture::Render(const SDL_Rect& p_rect, const SDL_Rect* p_clip, const SDL_Point* p_center) const noexcept
 {
-	SDL_RenderCopyEx(renderer, texture, p_clip, &p_rect, angle, center, flip);
+	SDL_RenderCopyEx(renderer, texture, p_clip, &p_rect, angle, p_center, flip);
 }
 void Texture::Render(const SDL_FRect& p_rect, const SDL_Rect* p_clip, const SDL_FPoint* p_center) const noexcept
 {
@@ -173,7 +169,9 @@ bool Texture::Lock()
             logger(SDL_GetError());
             success = false;
         } 
-        // else true.
+        else 
+         	logger("Texture: ", path, ", locked");
+
     }
 
     return success;
@@ -194,6 +192,7 @@ bool Texture::Unlock()
         SDL_UnlockTexture(texture);
         pixels = NULL;
         pitch = 0;
+        logger("Texture: ", path, ", unlocked");
     }
 
     return success;

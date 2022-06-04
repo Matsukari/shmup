@@ -1,5 +1,7 @@
 #include "../include/ttf.h"
 
+
+
 TTF::TTF(SDL_Renderer* p_renderer, std::string p_path, int p_size)
 {
 	renderer = p_renderer;
@@ -71,15 +73,28 @@ TTF::~TTF()
 // Cannot render with angle, point. Use preloaded text\
 // rect size is directed to font size
 // no newlnine
-void TTF::Render(std::string p_text, SDL_Rect p_rect, int p_margin) const
+void TTF::Render(const std::string& p_text, const SDL_Rect& p_rect, int p_marginx, int p_marginy) const
 {
+	int col = 0;
+	int row = 0;
 	for (int i = 0; i < p_text.size(); i++)
 	{
+		if (p_text[i] == '\n')
+		{
+			row++;
+			col = 0;
+			// cannot render \n, proceed
+			i++;
+			if (i >= p_text.size()) return; // newline is the end, return
+		}
 		SDL_Rect rect;
-		rect.x = (p_rect.x + (p_rect.w * i)) + (p_margin * i);
-		rect.y = p_rect.y;
+		rect.x = (p_rect.x + (p_rect.w * col)) + (p_marginx * col);
+		rect.y = (p_rect.y + (p_rect.h * row)) + (p_marginy * row);
 		rect.w = p_rect.w;
 		rect.h = p_rect.h;
+
 		SDL_RenderCopy(renderer, alphabet.at(p_text[i]), nullptr, &rect);
+
+		col++;
 	}
 }

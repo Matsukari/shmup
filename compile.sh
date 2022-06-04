@@ -12,6 +12,7 @@ OBJECTS="
  lib/obj/window.o
  lib/obj/resource_manager.o
  lib/obj/math.o
+ lib/obj/event.o
  json.o
  src/obj/main.o"
 LINKERS="

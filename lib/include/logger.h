@@ -24,7 +24,6 @@ public:
 	}
 
 	// functionate
-	// functionate
 	template<typename T>
 	void print(T arg)
 	{
