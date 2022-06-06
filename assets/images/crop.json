@@ -72,7 +72,7 @@
 	"player_bullet" :
 	{
 		"frames" : [[0, 0, 5, 13], [5, 0, 5, 13]],
-		"fspeed" : 100
+		"fspeed" : 200
 	},
 	"enemy_bullet" :
 	{

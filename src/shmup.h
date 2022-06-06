@@ -6,10 +6,11 @@
 #include "visual_object.h"
 #include "actor.h"
 #include "bullet.h"
-//#include "gun.h"
+#include "gun.h"
 //#include "effect.h"
-//#include "ship.h"
-//#include "shipex.h"
+#include "ship.h"
+#include "animatedship.h"
+#include "lean_animatedship.h"
 //#include "enemy_ship.h"
 //#include "bg.h"
 #include "../lib/include/resource_manager.h"
@@ -38,10 +39,14 @@ namespace Shmup
 		// manager
 		ResourceManager<Texture> texturemgr;
 		Window* window;
-		Bullet* bullet;
+		Gun* gun;
 
-		Rect rect;
+		FRect owner;
+
+		Rect screen;
 		RectArray frames;
+
+		Timer timer;
 
 		// actors
 		/*Actor* player_ship;
@@ -55,7 +60,7 @@ namespace Shmup
 
 	ShmupGame::ShmupGame(Window* p_window, const Rect& p_rect) : 
 		window(p_window),
-		rect(p_rect)
+		screen(p_rect)
 	{
 		logger("Initializing <Shmup>...");
 		Settings::Init();
@@ -64,12 +69,20 @@ namespace Shmup
 		frames = jsonex::Arr2ToRect2(Settings::image_crop["player_bullet"]["frames"]);
 
 		logger("Creating bullet...");
-		bullet = new Bullet(VisualObject(
-			&rect, 
+		owner = FRect(100, 100, 5*3, 16*3);
+		gun = new Gun(VisualObject(
+			&screen, 
 			texturemgr.Construct("1", window, Settings::IMAGE_PATH + str(Settings::config["use_texture"]["player_bullet"])),
-			FRect(100, 100, 20, 20)),
+			FRect(0, 0, 5*3, 16*3)),
+			5,
+			&owner,
 			nullptr,
-			&frames, FVec2{0, 100}, 10);
+			&frames,
+			Settings::image_crop["player_bullet"]["fspeed"]
+		);
+			gun->Get_Texture()->Set_Flip(SDL_FLIP_VERTICAL);
+
+		timer.Peek();
 
 
 	}
@@ -77,7 +90,7 @@ namespace Shmup
 	{
 		logger("Destructing <Shmup>...");
 		window = nullptr;
-		delete bullet;
+		delete gun;
 
 		/*delete player_ship;
 		player_ship = nullptr;
@@ -98,6 +111,12 @@ namespace Shmup
 	void ShmupGame::HandleEvents(const Event* p_event)
 	{
 		//player_ship->HandleEvents(p_event);
+
+		if (timer.SinceLastPeek() >= 500)
+		{
+			timer.Peek();
+			gun->Fire(FVec2{0, 100}, 10);
+		}
 	}
 	void ShmupGame::Update(float p_dt)
 	{
@@ -107,7 +126,7 @@ namespace Shmup
 		{
 			enemy->Update(p_dt);
 		}*/
-		bullet->Update(p_dt);
+		gun->Update(p_dt);
 	}
 	void ShmupGame::Render()
 	{
@@ -118,7 +137,7 @@ namespace Shmup
 			enemy->Render();
 		}*/
 
-		bullet->Render();
+		gun->Render();
 	}
 }
 

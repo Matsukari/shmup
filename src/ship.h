@@ -7,13 +7,21 @@
 namespace Shmup
 {
 	// pass a big fat toy gun to this baby, he won't forget to clean it after so..! 
-	class Ship : public Actor
+	class Ship : public Actor, public Move4
 	{
 	public:
-		Ship(const EntityProp& p_prop, Gun* p_gun);
+		Ship(const VisualObject& p_obj, Gun* p_gun);
 		virtual ~Ship() override;
 
-		virtual void HandleEvents(const SDL_Event& p_event) override;
+		const Gun* Get_Gun() const noexcept { return gun; }
+		Gun* Get_Gun() noexcept { return gun; }
+
+		virtual void Move_Left(Uint32 p_vel) 	override { vel.x = -p_vel; }
+		virtual void Move_Right(Uint32 p_vel) 	override { vel.x =  p_vel; }
+		virtual void Move_Top(Uint32 p_vel) 	override { vel.y = -p_vel; }
+		virtual void Move_Bottom(Uint32 p_vel) 	override { vel.y =  p_vel; }
+
+
 		virtual void Update(float p_dt) override;
 		virtual void Render() override;
 
@@ -21,8 +29,8 @@ namespace Shmup
 		Gun* gun;
 		
 	};
-	Ship::Ship(const EntityProp& p_prop, Gun* p_gun) : 
-		Actor(p_prop),
+	Ship::Ship(const VisualObject& p_obj, Gun* p_gun) : 
+		Actor(p_obj),
 		gun(p_gun)
 	{
 		//gun = new Bullets()
@@ -38,22 +46,6 @@ namespace Shmup
 
 
 
-
-	void Ship::HandleEvents(const SDL_Event& p_event)
-	{
-		if (p_event.type == SDL_KEYDOWN)
-		{
-			switch(p_event.key.keysym.sym)
-			{
-				// fly! soar high! (TOP of ship)
-				case SDLK_j: gun->Fire(Vecf2{0, -250}, 10); break;
-				case SDLK_w: vel.y = -100; logger("<Ship><", id, "> moved up"); break;
-				case SDLK_a: vel.x = -100; logger("<Ship><", id, "> moved left"); break;
-				case SDLK_s: vel.y = 100; logger("<Ship><", id, "> moved down"); break;
-				case SDLK_d: vel.x = 100; logger("<Ship><", id, "> moved right"); break;
-			}
-		}
-	}
 	void Ship::Update(float p_dt)
 	{
 		gun->Update(p_dt);

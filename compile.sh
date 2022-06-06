@@ -15,10 +15,6 @@ OBJECTS="
  lib/obj/event.o
  lib/obj/json.o
 
- src/obj/settings.o
- src/obj/visual_object.o
- src/obj/actor.o
- src/obj/bullet.o
  src/obj/main.o"
 LINKERS="
  -lSDL2main
@@ -35,10 +31,7 @@ EXECUTABLE="shmup"
 echo "g++ $OBJECTS $LINKERS -o $EXECUTABLE"
 g++ $OBJECTS $LINKERS -o $EXECUTABLE
 
-ok=false
-read -p "run[y/n]? " ok
-case $ok in
-    "y" | "Y" | "" )
-        ./$EXECUTABLE
-        ;;
-esac
+# NO SUPPLEMENT ARGUMENT
+if [[ $1 == "-r" || $1 == "--run" ]]; then
+    ./$EXECUTABLE
+fi

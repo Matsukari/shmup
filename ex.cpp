@@ -17,31 +17,57 @@ template<class T>
 using vector = std::vector<T>;
 
 
-class OBJ
+class Energy
 {
 public:
-	OBJ(int px, int ph) : x(px), h(ph) {}
-	~OBJ() {}
+	virtual ~Energy() = 0;
 
-	int x;
-	int h;
+	virtual void Accum() = 0;
 	
 };
-class Actor : public OBJ
+	Energy::~Energy() { std::cout << "~Energy\n";}
+
+
+class Move
 {
 public:
-	Actor(const OBJ& obj, int pp) : OBJ(obj), SetP(pp) { std::cout << "Actor initialized" << std::endl; }
-	~Actor() { std::cout << "Actor destructed" << std::endl; }
+	virtual ~Move();
 
-	void SetP(int pp) { p = pp; }
 	
-	int p;
+};
+	Move::~Move() { std::cout << "~Move\n";}
+
+
+class Atom : public Energy, public Move
+{
+public:
+	Atom() {}
+	virtual ~Atom() override { std::cout << "~Atom\n";}
+	
+	virtual void Accum() override = 0; //{ std::cout << "ATOM ACCUM\n";}
+};
+
+class Mol : public Atom
+{
+public:
+	Mol() {}
+	virtual ~Mol() override {}
+	
+	virtual void Accum() override { std::cout << "MOl ACCUM\n";}
+};
+
+class Bacteria : public Mol
+{
+public:
+	Bacteria() {}
+	virtual ~Bacteria() override {}
+	
 };
 int main()
 {
-	const Actor actor(OBJ{12 , 99});
-
-	std::cout << actor.p << std::endl;
+	Bacteria bacteria;
+	Energy &energy = bacteria;
+	energy.Accum();
 
 	std::cout << std::endl << R"(END)" << std::endl;
 

@@ -1,41 +1,53 @@
 #pragma once
-#define effect_h
+#define gun_h
 
 #include "bullet.h"
+#include <list>
 
 namespace Shmup
 {
-	using BulletArray = std::vector<Bullet>;
+	using BulletList = std::list<Bullet*>;
 	// collection of bullets
-	class Gun : public Entity
+	class Gun : public VisualObject // this visualobject corresponds to each bullet
 	{
 	public:
 		// prop for bullet, spawn_point(only position will be used) the bullet prop rect size will reman
-		Gun(const EntityProp& p_bulletprop, const FRect* p_spawnpoint = nullptr);
-		virtual ~Gun() override;
+		Gun(const VisualObject& p_bullet, int p_ammo, const FRect* p_spawnp, ActorArray* p_targets, const RectArray* p_frames, unsigned int p_fspeed);
+		virtual ~Gun();
 
-		void SetSpawnPoint(const FRect* p_spawnpoint) noexcept { spawnpoint = p_spawnpoint; }
-		void SetTargets(ActorArray* p_targets) noexcept { targets = p_targets; }
-		void SetCapacity(int p_cap) noexcept { capacity = p_cap; }
+		int Get_Ammo() const noexcept { return ammo; }
+
+		void Set_SpawnPoint(const FRect* p_spawnp) noexcept { spawnp = p_spawnp; }
+		void Set_Ammo(int p_ammo) noexcept { ammo = p_ammo; }
+		void Set_Targets(ActorArray* p_targets) noexcept;
 
 
-		virtual void Fire(Vecf2 p_vel, int p_dmg);
-		virtual void Update(float p_dt) override;
-		virtual void Render() override;
+		virtual void Fire(FVec2 p_vel, int p_dmg);
+		virtual void Update(float p_dt);
+		virtual void Render();
 
 		
 	protected:
-		const FRect* spawnpoint; // where bullets come from; complemented and directed by velocity
+		const FRect* spawnp; // where bullets come from; complemented and directed by velocity
+		const RectArray* frames; // bullet frame src
+
 		ActorArray* targets;
-		BulletArray ammo;
-		int capacity;
+		BulletList bullets;
+
+		unsigned int fspeed;
+
+		int ammo;
 
 	};
 
-	Gun::Gun(const EntityProp& p_bulletprop, const FRect* p_spawnpoint) : 
-		Entity(p_bulletprop),
-		spawnpoint(p_spawnpoint),
-		capacity(3)
+
+	Gun::Gun(const VisualObject& p_bullet, int p_ammo, const FRect* p_spawnp, ActorArray* p_targets, const RectArray* p_frames, unsigned int p_fspeed) : 
+		VisualObject(p_bullet),
+		ammo(p_ammo),
+		spawnp(p_spawnp),
+		targets(p_targets),
+		frames(p_frames),
+		fspeed(p_fspeed)
 	{
 		logger("Initializing <Gun><", id, ">...");
 
@@ -43,53 +55,71 @@ namespace Shmup
 	Gun::~Gun()
 	{
 		logger("Destructing <Gun><", id, ">...");
+		for(auto& bullet : bullets)
+		{
+			delete bullet;
+			bullet = nullptr;
+		}
+		spawnp = nullptr;
+		frames = nullptr;
 		targets = nullptr;
-		spawnpoint = nullptr;
-
 	}
 
-	void Gun::Fire(Vecf2 p_vel, int p_dmg)
+	void Gun::Set_Targets(ActorArray* p_targets) noexcept
 	{
-		EntityProp bulletprop = *this;
-		bulletprop.rect.x = spawnpoint->x;
-		bulletprop.rect.y = spawnpoint->y;
-
-
-		logger("bullet preparing...");
-
-
-		if (ammo.size() > capacity)
+		for(auto& bullet : bullets)
 		{
-			logger("too many unhandled bullets left!");
+			bullet->Set_Targets(p_targets);
+		}
+	}
+
+
+	void Gun::Fire(FVec2 p_vel, int p_dmg)
+	{
+		if (!ammo)
+		{
+			logger("No ammo left!");
 			return;
 		}
 
-		ammo.emplace_back(bulletprop, targets, p_vel, p_dmg);
-		logger("Bullet fired");
+		//logger("bullet preparing...");
+
+		VisualObject bullet_prop = *this;
+
+		FRect newrect = bullet_prop.Get_Rect();
+		newrect.x = spawnp->x;
+		newrect.y = spawnp->y;
+
+		bullet_prop.Set_Rect(newrect);
 
 
-		
+		bullets.push_back(new Bullet(bullet_prop, targets, frames, fspeed, p_vel, p_dmg));
+		--ammo;
+
+		logger("Bullet fired, ammo left: ", ammo);
+
 	}
 
 	void Gun::Update(float p_dt)
 	{
 		// auto bullet might access invalid memory
-		if (ammo.size() > 0)
+		if (!bullets.empty())
 		{
-			logger("bullet ammo.begin()...");
+			//logger("bullet ammo.begin()...");
 
-			for(auto bullet = ammo.begin(); bullet != ammo.end(); bullet++)
+			for(auto bullet = bullets.begin(); bullet != bullets.end(); bullet++)
 			{
-				logger("bullet UpDATING...");
+				//logger("bullet UpDATING...");
 
-				bullet->Update(p_dt);
+				(*bullet)->Update(p_dt);
 
-				logger("bullet ISALIVE...");
+				//logger("bullet ISALIVE...");
 
-				if ( ! bullet->IsAlive())
+				if ( ! (*bullet)->Is_Alive())
 				{
-					logger("\nNOT ALIVE ERASING");					
-					ammo.erase(bullet);
+					logger("\nBULLET ERASING");					
+					bullets.erase(bullet);
+					bullet--; // bullet will point to the same index
 				}
 			}	
 		}
@@ -99,9 +129,9 @@ namespace Shmup
 
 	void Gun::Render()
 	{
-		for(auto& bullet : ammo)
+		for(auto bullet : bullets)
 		{
-			bullet.Render();
+			bullet->Render();
 		}
 
 	}

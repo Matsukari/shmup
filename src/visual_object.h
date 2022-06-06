@@ -8,12 +8,23 @@
 
 namespace Shmup
 {
+	class Object
+	{
+	public:
+		virtual ~Object() = 0;
+
+		virtual void Update(float p_dt) = 0;
+		virtual void Render() = 0;
+		
+	};
+	Object::~Object() {}
+	
 	// inherit me
-	class VisualObject
+	class VisualObject : public Object
 	{
 	public:
 		VisualObject(const Rect* p_screen, Texture_ptr p_texture, const FRect& p_rect);
-		virtual ~VisualObject();
+		virtual ~VisualObject() override;
 
 		Texture_ptr Get_Texture() const noexcept { return texture; }
 		//const RectArray& GetFrames() const noexcept { return frames; }
@@ -21,9 +32,8 @@ namespace Shmup
 
 		void Set_Rect(const FRect& p_rect) noexcept { rect = p_rect; }
 
-		virtual void HandleEvents(const Event* p_event) {}
-		virtual void Update(float p_dt);
-		virtual void Render();
+		virtual void Update(float p_dt) override;
+		virtual void Render() override;
 
 	protected:
 		const Rect* screen;
@@ -35,6 +45,38 @@ namespace Shmup
 	private:
 		static int instances;
 	};
+
+
+	// static
+	int VisualObject::instances = 0;
+
+	VisualObject::VisualObject(const Rect* p_screen, Texture_ptr p_texture, const FRect& p_rect) :
+		screen(p_screen),
+		texture(p_texture),
+		rect(p_rect)
+	{
+		logger("Initializing <VisualObject><", id, ">...");
+
+		instances++;
+		id = instances;
+
+		//curframe = 0;
+
+	}
+	VisualObject::~VisualObject()
+	{
+		logger("Destructing <VisualObject><", id, ">...");
+		screen = nullptr;
+	}
+
+	void VisualObject::Update(float p_dt)
+	{
+	}
+
+	void VisualObject::Render()
+	{
+		texture->Render(rect);
+	}
 
 
 }
