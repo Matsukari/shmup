@@ -12,16 +12,23 @@ namespace Shmup
 		LeanAnimatedShip(const VisualObject& p_obj, Gun* p_gun, FrameMap* p_act_framemap);
 		~LeanAnimatedShip() override;
 
-		void DoneMoving() noexcept { done_moving = true; }
+		void DoneMoving() noexcept { 
+			logger("Going BACK TO IDLE"); 
+			is_donemoving = true;
+			
+		}
 
-		void Move_Left(Uint32 p_vel) override;
-		void Move_Right(Uint32 p_vel) override;
+		void Move_Left(int p_vel) override;
+		void Move_Right(int p_vel) override;
+		void Move_Top(int p_vel) override;
+		void Move_Bottom(int p_vel) override;
+
 		
 		void Update(float p_dt) override;
 
 	protected:
-		bool is_mvtrans; // move transition
-		bool done_moving;
+		bool is_donemoving;
+		bool is_moving;
 
 		
 	};
@@ -31,9 +38,8 @@ namespace Shmup
 		//gun = new Gun()
 		logger("Initializing <LeanAnimatedShip><", id, ">...");
 
-		is_mvtrans = false;
-		done_moving = false;
-
+		is_moving = false;
+		is_donemoving = false;
 
 	}
 	LeanAnimatedShip::~LeanAnimatedShip()
@@ -43,47 +49,94 @@ namespace Shmup
 	}
 
 
-	void LeanAnimatedShip::Move_Left(Uint32 p_vel)
+	void LeanAnimatedShip::Move_Left(int p_vel)
 	{
-		Move_Left(p_vel);
-		Set_Act("move_left");
+		AnimatedShip::Move_Left(p_vel);
+		if (!is_moving)
+		{
+			Set_Act("move_left");
+			is_moving = true;
+
+		}
 
 	}
-	void LeanAnimatedShip::Move_Right(Uint32 p_vel)
+	void LeanAnimatedShip::Move_Right(int p_vel)
 	{
-		Move_Right(p_vel);
-		Set_Act("move_right");
+		AnimatedShip::Move_Right(p_vel);
+		if (!is_moving)
+		{
+			Set_Act("move_right");
+			is_moving = true;
+		}
+	}
+	void LeanAnimatedShip::Move_Top(int p_vel)
+	{
+		AnimatedShip::Move_Top(p_vel);
+		//is_moving = true;
+	}
+	void LeanAnimatedShip::Move_Bottom(int p_vel)
+	{
+		AnimatedShip::Move_Bottom(p_vel);
+		//is_moving = true;
 	}
 
 	void LeanAnimatedShip::Update(float p_dt)
 	{
+		//AnimatedShip::Update(p_dt);
+		Ship::Update(p_dt);
+
 		auto& frames = act_framemap->at(curr_act);
 
-		bool is_actmove = curr_act == "move_right" || curr_act == "move_left";
-
-		// go back to idle
-		if (is_actmove && done_moving)
+		
+		auto Loop = [&]()
 		{
-			frames.Set_Jump(-1);
-			is_mvtrans = true;
-
-			done_moving = false;
-
-		}
-		// move frame is nearing the end frame yet there is no change in event move. 
-		// Pertain boost animation that is within last 2
-		else if (!is_mvtrans && is_actmove && frames.Idx() >= frames.size() - 2)
+			//logger("IDLE LOOPING");
+			frames.curr++;
+			if (frames.curr >= frames.size())
+			{
+				frames.curr = 0;
+			}
+		};
+		auto SuspendEnd = [&]()
 		{
-			frames.Set_Start(frames.size() - 2);
-		}
-
-		AnimatedShip::Update(p_dt);
-
-		if (is_mvtrans && frames.Idx() > 0)
+			//logger("SUSPENDING");
+			frames.curr++;
+			if (frames.curr >= frames.size())
+			{
+				frames.curr = frames.size() - 2;
+			}
+		};	
+		auto Reverse = [&]()
 		{
-			Set_Act("idle");
-			act_framemap->at(curr_act).Set_Jump(1);
+			//logger("REVERSE_____");
+			frames.curr--;
+			if (frames.curr < 0)
+			{
+				frames.curr = 0;
+				is_donemoving = false;
+				is_moving = false;
+				Set_Act("idle");
+			}
+		};	
+
+
+		if (curr_act == "idle")
+		{
+			frames.On_NextFrame(Loop);
 		}
+		else if (is_donemoving) // priotize before moving
+		{
+			frames.On_NextFrame(Reverse);
+		}
+		else if (is_moving)
+		{
+			frames.On_NextFrame(SuspendEnd);
+		}
+
+
+
+
+
 		
 	}
 

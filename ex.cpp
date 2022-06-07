@@ -3,6 +3,8 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <list>
+#include <iterator>
 
 #include <memory>
 //#include "lib/json.hpp"
@@ -15,60 +17,34 @@
 
 template<class T>
 using vector = std::vector<T>;
+#include <cassert>
 
 
-class Energy
+class Pen
 {
 public:
-	virtual ~Energy() = 0;
-
-	virtual void Accum() = 0;
-	
-};
-	Energy::~Energy() { std::cout << "~Energy\n";}
-
-
-class Move
-{
-public:
-	virtual ~Move();
-
-	
-};
-	Move::~Move() { std::cout << "~Move\n";}
-
-
-class Atom : public Energy, public Move
-{
-public:
-	Atom() {}
-	virtual ~Atom() override { std::cout << "~Atom\n";}
-	
-	virtual void Accum() override = 0; //{ std::cout << "ATOM ACCUM\n";}
-};
-
-class Mol : public Atom
-{
-public:
-	Mol() {}
-	virtual ~Mol() override {}
-	
-	virtual void Accum() override { std::cout << "MOl ACCUM\n";}
-};
-
-class Bacteria : public Mol
-{
-public:
-	Bacteria() {}
-	virtual ~Bacteria() override {}
+	Pen()
+	{
+		std::cout << "Pen\n";
+	}
+	~Pen()
+	{
+		std::cout << "~Pen\n";
+	}
 	
 };
 int main()
 {
-	Bacteria bacteria;
-	Energy &energy = bacteria;
-	energy.Accum();
+	vector<Pen*> pens;
+	pens.push_back(new Pen{});
+	pens.push_back(new Pen{});
+	pens.push_back(new Pen{});
 
+	delete *pens.begin();
+	pens.erase(pens.begin());
+
+
+	//std::cout << group[0] << std::endl;
 	std::cout << std::endl << R"(END)" << std::endl;
 
 

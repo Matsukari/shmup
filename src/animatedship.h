@@ -8,6 +8,7 @@ namespace Shmup
 {
 	// keyed actions, containing: [frame][x]
 	using FrameMap = std::map<std::string, FrameList>;
+
 	// A ship with actions
 	class AnimatedShip : public Ship
 	{
@@ -17,6 +18,7 @@ namespace Shmup
 
 		void Set_Act(std::string p_act) noexcept 
 		{ 
+			logger("Changed act to '", p_act, "'");
 			assert(act_framemap->find(p_act) != act_framemap->end());
 			curr_act = p_act;
 		}
@@ -38,7 +40,7 @@ namespace Shmup
 		//gun = new Gun()
 		logger("Initializing <AnimatedShip><", id, ">...");
 
-		curr_act = "idle";
+		Set_Act("idle");
 
 	}
 	AnimatedShip::~AnimatedShip()
@@ -48,68 +50,18 @@ namespace Shmup
 	}
 
 
-	/*void AnimatedShip::HandleEvents(const SDL_Event& p_event)
-	{
-
-		if (p_event.type == SDL_KEYDOWN)
-		{
-			switch(p_event.key.keysym.sym)
-			{
-				// fly my boy! soar high! (TOP of ship)
-				case SDLK_j: 
-					gun->Fire(Vecf2{0, -250}, 10); 
-					break;
-				case SDLK_w:  // UP
-					vel.y = -100; 
-					logger("<AnimatedShip><", id, "> moved up"); 
-					break;
-				case SDLK_a: // LEFT
-					//has_movedleft = true;
-					curaction = "move_left";
-					is_inaction = true;
-					
-					vel.x = -100; 
-					logger("<AnimatedShip><", id, "> moved left"); 
-					break;
-				case SDLK_s: // BOTTOM
-					vel.y = 100; 
-					logger("<AnimatedShip><", id, "> moved down"); 
-					break;
-				case SDLK_d: // RIGHT
-					//has_movedright = true;
-					curaction = "move_right";
-					is_inaction = true;
-
-					vel.x = 100; 
-					logger("<AnimatedShip><", id, "> moved right"); 
-					break;
-			}
-		}
-		else if (p_event.type == SDL_KEYUP && is_inaction)
-		{
-			switch(p_event.key.keysym.sym)
-			{
-				case SDLK_a: case SDLK_d:
-					is_inaction = false;
-					logger("NOT IN ACTION");
-
-					break;
-
-			}
-		}
-
-	}*/
 	void AnimatedShip::Update(float p_dt)
 	{
 		Ship::Update(p_dt);
 
-		act_framemap->at(curr_act).Run(p_dt);
+		act_framemap->at(curr_act).On_NextFrame();
 		
 	}
 	void AnimatedShip::Render()
 	{
 		gun->Render();
-		texture->Render(rect, &act_framemap->at(curr_act).Curr());
+		//logger("ACtion: ", curr_act, ", Frame(", act_framemap->at(curr_act).Idx(), "): ", act_framemap->at(curr_act).Curr().x, ", ", act_framemap->at(curr_act).Curr().y, ", ", act_framemap->at(curr_act).Curr().w, ", ", act_framemap->at(curr_act).Curr().h);
+		texture->Render(rect, &(*act_framemap->at(curr_act)));
 		
 	}
 }

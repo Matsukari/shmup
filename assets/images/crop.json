@@ -29,7 +29,10 @@
 
 		},
 
-		"fspeed" : 50
+		"idle_fspeed" : 100,
+		"move_left_fspeed" : 80,
+		"move_right_fspeed" : 80
+
 	},
 	
 	"enemy_weak" :
@@ -43,7 +46,7 @@
 
 			] 
 		},
-		"fspeed" : 100
+		"idle_fspeed" : 100
 	},
 	"enemy_elite" :
 	{
@@ -54,7 +57,7 @@
 				[0, 0, 0, 0]
 			] 
 		},
-		"fspeed" : 100
+		"idle_fspeed" : 100
 	},
 	"enemy_boss" :
 	{
@@ -65,14 +68,14 @@
 				[0, 0, 0, 0]
 			] 
 		},
-		"fspeed" : 100
+		"idle_fspeed" : 100
 	},
 
 
 	"player_bullet" :
 	{
 		"frames" : [[0, 0, 5, 13], [5, 0, 5, 13]],
-		"fspeed" : 200
+		"fspeed" : 100
 	},
 	"enemy_bullet" :
 	{
@@ -80,7 +83,11 @@
 		"fspeed" : 100
 	},
 	
-
+	"bullet_hit" :
+	{
+		"frames" : [[0, 0, 16, 16], [16, 0, 16, 16], [32, 0, 16, 16], [48, 0, 16, 16], [64, 0, 16, 16]],
+		"fspeed" : 100
+	},
 	"ship_explosion" :
 	{
 		"frames" : [[0, 0, 0, 0]],

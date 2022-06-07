@@ -75,8 +75,8 @@ void App::On_Events()
 	while(SDL_PollEvent(&event))
 	{
 		Event::HandleEvents();
+		shmup->HandleEvents(this/*Event*/);
 	}
-	shmup->HandleEvents(this/*Event*/);
 }
 void App::On_Update()
 {

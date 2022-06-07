@@ -13,13 +13,13 @@ namespace Shmup
 		Ship(const VisualObject& p_obj, Gun* p_gun);
 		virtual ~Ship() override;
 
-		const Gun* Get_Gun() const noexcept { return gun; }
+		//const Gun* Get_Gun() const noexcept { return gun; }
 		Gun* Get_Gun() noexcept { return gun; }
 
-		virtual void Move_Left(Uint32 p_vel) 	override { vel.x = -p_vel; }
-		virtual void Move_Right(Uint32 p_vel) 	override { vel.x =  p_vel; }
-		virtual void Move_Top(Uint32 p_vel) 	override { vel.y = -p_vel; }
-		virtual void Move_Bottom(Uint32 p_vel) 	override { vel.y =  p_vel; }
+		virtual void Move_Left(int p_vel) 	override { vel.x = -abs(p_vel); }
+		virtual void Move_Right(int p_vel) 	override { vel.x =  abs(p_vel); }
+		virtual void Move_Top(int p_vel) 	override { vel.y = -abs(p_vel); }
+		virtual void Move_Bottom(int p_vel) override { vel.y =  abs(p_vel); }
 
 
 		virtual void Update(float p_dt) override;

@@ -7,6 +7,7 @@
 
 namespace Shmup
 {
+
 	// fired the moment it's initialized
 	class Bullet : public Actor
 	{
@@ -87,11 +88,12 @@ namespace Shmup
 				{
 					//logger("checking target collission...");
 					// need lvalue for SDL_HasIntersection
-					Rect a(collrect);
-					Rect b(target->Get_CollRect());
+					Rect a(rect);
+					Rect b(target->Get_Rect());
 					if (SDL_HasIntersection(&a, &b))
 					{
 						is_alive = false;
+						is_deathreact = true;
 						target->Set_Health(target->Get_Health() - dmg);
 
 						logger("<Bullet><", id, " hit an Actor");	

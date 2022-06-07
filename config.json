@@ -21,9 +21,17 @@
 	{
 		"screen" : [720, 550],
 		"player" : [32, 48],
-		"enemy_weak" : [16, 16],
+		"enemy_weak" : [32, 32],
 		"player_bullet" : [10, 26],
 		"enemy_bullet" : [5, 5]
+	},
+	"speed" :
+	{
+		"player_move" : 140,
+		"slow_bullet" : 130,
+		"normal_bullet" : 200,
+		"fast_bullet" : 250
+
 	},
 	"scale" : 1
 }
