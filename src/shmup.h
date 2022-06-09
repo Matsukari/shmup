@@ -134,21 +134,27 @@ namespace Shmup
 		enemygun->Set_SpawnPoint(&enemies[0]->Get_Rect(), RectItsCenter);
 		gun->Set_Targets(&enemies);
 
-		
-		explosion = new Animation(
-			VisualObject(
-				&screen,
-				texturemgr.Construct("explo", window, Settings::IMAGE_PATH + str(Settings::config["use_texture"]["bullet_hit"])),
+	
+
+		auto explo = [&]() -> Animation*
+		{
+			return new Animation(
+				VisualObject(
+					&screen,
+					texturemgr.Construct("explo", window, Settings::IMAGE_PATH + str(Settings::config["use_texture"]["bullet_hit"])),
 				FRect(0, 0, 32, 32)),
-			FrameList(
-				jsonex::Arr2ToRect2(Settings::image_crop["bullet_hit"]["frames"]), 
-				Settings::image_crop["bullet_hit"]["fspeed"]),
-			&enemies[0]->Get_Rect()
-		);
+				FrameList(
+					jsonex::Arr2ToRect2(Settings::image_crop["bullet_hit"]["frames"]), 
+					Settings::image_crop["bullet_hit"]["fspeed"]),
+				&enemies[0]->Get_Rect()
+			);
+		};
+		explosion = explo();
 
 		react = new AnimReaction(explosion);
 
 		gun->Set_DeathReaction(react);
+		enemies.back()->Set_DeathReaction(react);
 
 		timer.Peek();
 
@@ -189,7 +195,7 @@ namespace Shmup
 		else if (state[SDL_SCANCODE_D]) player->Move_Right(Settings::config["speed"]["player_move"]);
 		if 		(state[SDL_SCANCODE_W]) player->Move_Top(Settings::config["speed"]["player_move"]);
 		else if (state[SDL_SCANCODE_S]) player->Move_Bottom(Settings::config["speed"]["player_move"]);
-		if 		(state[SDL_SCANCODE_J]) player->Get_Gun()->Fire(FVec2{0, -abs((int)Settings::config["speed"]["normal_bullet"])}, 100);
+		if 		(state[SDL_SCANCODE_J]) player->Get_Gun()->Fire(FVec2{0, -fabs((float)Settings::config["speed"]["normal_bullet"])}, 100);
 	
 		
 		if (Event::GetEvent().type == SDL_KEYUP)
@@ -214,7 +220,18 @@ namespace Shmup
 			enemy->Update(p_dt);
 		}*/
 
-		enemies[0]->Update(p_dt);
+		
+		for (auto enemy = enemies.begin(); enemy != enemies.end(); )
+		{
+			(*enemy)->Update(p_dt);
+			if ( ! (*enemy)->Is_Alive())
+			{
+				delete *enemy;
+				enemy = enemies.erase(enemy);
+			}
+			else
+				enemy++;
+		}
 		player->Update(p_dt);
 
 		explosion->Update(p_dt);
@@ -227,7 +244,10 @@ namespace Shmup
 		{
 			enemy->Render();
 		}*/
-		enemies[0]->Render();
+		for(auto i : enemies)
+		{
+			i->Render();
+		}
 		player->Render();
 
 		explosion->Render();

@@ -84,7 +84,7 @@ namespace Shmup
 			if (targets)
 			{
 				//logger("Target : *targets");
-				for (auto target : *targets)
+				for (auto& target : *targets)
 				{
 					//logger("checking target collission...");
 					// need lvalue for SDL_HasIntersection
@@ -97,6 +97,14 @@ namespace Shmup
 						target->Set_Health(target->Get_Health() - dmg);
 
 						logger("<Bullet><", id, " hit an Actor");	
+						logger("dealth ", dmg, "to target. Remaining health, ", target->Get_Health());
+
+						if (target->Get_Health() <= 0)
+						{
+							logger("target loss of health. DEAD");
+							target->Kill();
+							target->DeathReact();
+						}
 					}
 				}	
 			}

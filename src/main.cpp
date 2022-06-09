@@ -61,7 +61,7 @@ App::~App()
 
 void App::Exe()
 {
-	logger("App starting to run");
+	logger("\nApp starting to run\n");
 	while(!Event::Has_Quit())
 	{
 		On_Events();

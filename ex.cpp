@@ -19,11 +19,17 @@ template<class T>
 using vector = std::vector<T>;
 #include <cassert>
 
+struct Body
+{
+	int size=  7712;
+	int str = 123;
+};
+
 
 class Pen
 {
 public:
-	Pen()
+	Pen(const Body& body) : bod(body)
 	{
 		std::cout << "Pen\n";
 	}
@@ -32,16 +38,23 @@ public:
 		std::cout << "~Pen\n";
 	}
 	
+
+	Body bod;
 };
+
+
 int main()
 {
-	vector<Pen*> pens;
-	pens.push_back(new Pen{});
-	pens.push_back(new Pen{});
-	pens.push_back(new Pen{});
+	Pen* pen = nullptr;
+	{
+		Body body{};
+		body.size = 6700;
+		pen = new Pen(body);
+		std::cout << "Before " << pen->bod.size << std::endl;
 
-	delete *pens.begin();
-	pens.erase(pens.begin());
+	}
+	std::cout << "after " << pen->bod.size << std::endl;
+	delete pen;
 
 
 	//std::cout << group[0] << std::endl;

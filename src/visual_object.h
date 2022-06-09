@@ -65,7 +65,7 @@ namespace Shmup
 	}
 	VisualObject::~VisualObject()
 	{
-		logger("Destructing <VisualObject><", id, ">...");
+		logger("Destructing <VisualObject><", id, ">...\n");
 		screen = nullptr;
 	}
 

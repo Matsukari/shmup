@@ -29,6 +29,7 @@ namespace Shmup
 	};
 	Reaction::~Reaction(){}
 
+
 	class Animation : public VisualObject, public FrameList
 	{
 	public:
@@ -117,6 +118,9 @@ namespace Shmup
 		bool Is_Alive() const noexcept { return is_alive; }
 		virtual void Update(float p_dt) override;
 
+		void Kill() noexcept { is_alive = false; }
+		void DeathReact() noexcept { is_deathreact = true; }
+
 
 	protected:
 		bool is_alive;
@@ -138,7 +142,7 @@ namespace Shmup
 		logger("Initializing <Actor><", id, ">...");
 
 		is_alive = true;
-		health = 0;
+		health = 110;
 		collrect = rect;
 		
 		vel = FVec2{0.0f, 0.0f};
