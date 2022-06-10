@@ -5,65 +5,55 @@
 
 namespace Shmup
 {
-	// background
-	class BG : public Actor
+	class BGSprite : public Actor
 	{
 	public:
-		BG(const EntityProp& p_prop, Vecf2 p_vel);
-		~BG() override;
+		BGSprite(const VisualObject& p_obj, Texture_ptr p_cloud, float p_speed) : Actor(p_obj)
+		{
+			vel.y = p_speed;
+			
+			buffer_rect = rect;
+			buffer_rect.y -= rect.h;
 
-		void StopAdvance() noexcept {}
-		void ScatterClouds() noexcept {}
+			end = rect.Bottom();
 
-		void Update(float p_dt) override;
-		void Render() override;
+		}
+		//BGSprite::BGSprite(const VisualObject& p_obj, Texture_ptr p_cloud, float p_speed) : Actor(p_obj) {}
 
-	protected:
+		~BGSprite() override
+		{}
+
+
+
+		void Update(float p_dt) override
+		{
+			buffer_rect.y += vel.y * p_dt;
+			rect.y += vel.y * p_dt;
+
+			if (rect.Top() > end)
+			{
+				rect.y = buffer_rect.Top() - rect.h;
+			}
+			else if (buffer_rect.Top() > end)
+			{
+				buffer_rect.y = rect.Top() - buffer_rect.h;
+			}
+
+
+		}
+		void Render() override
+		{
+			texture->Render(buffer_rect);
+			texture->Render(rect);
+		}
+
+
+	private:
+
+		float end;
 		FRect buffer_rect;
-		float bottom;
-		
+		FVec2 vel;
+
+
 	};
-	BG::BG(const EntityProp& p_prop, Vecf2 p_vel) : 
-		Actor(p_prop)
-	{
-		logger("Initializing <BG><", id, ">...");
-		buffer_rect = rect;
-		buffer_rect.y -= rect.h;
-		bottom = rect.Bottom();
-
-		SetVel(p_vel);
-		SetVel(p_vel);
-
-	}
-	BG::~BG()
-	{
-		logger("Destructing <BG><", id, ">...");
-		
-	}
-
-
-
-	void BG::Update(float p_dt)
-	{
-		rect.x += vel.x * p_dt;
-		rect.y += vel.y * p_dt;
-
-		buffer_rect.x += vel.x * p_dt;
-		buffer_rect.y += vel.y * p_dt;
-
-		if (rect.y > bottom)
-		{
-			rect.y = buffer_rect.y - rect.h;
-		}
-		else if (buffer_rect.y > bottom)
-		{
-			buffer_rect.y = rect.y - buffer_rect.h;
-		}
-	}
-	void BG::Render()
-	{
-		texture->Render(Rect{buffer_rect});
-		texture->Render(Rect{rect});
-
-	}
 }

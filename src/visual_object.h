@@ -27,6 +27,7 @@ namespace Shmup
 		virtual ~VisualObject() override;
 
 		Texture_ptr Get_Texture() const noexcept { return texture; }
+		void Set_Texture(Texture_ptr p_texture) noexcept { texture = p_texture; }
 		//const RectArray& GetFrames() const noexcept { return frames; }
 		const FRect& Get_Rect() const noexcept { return rect; }
 
@@ -34,6 +35,8 @@ namespace Shmup
 
 		virtual void Update(float p_dt) override;
 		virtual void Render() override;
+		virtual void Render() const;
+
 
 	protected:
 		const Rect* screen;
@@ -77,6 +80,11 @@ namespace Shmup
 	{
 		texture->Render(rect);
 	}
+	void VisualObject::Render() const
+	{
+		texture->Render(rect);
+	}
+	
 
 
 }

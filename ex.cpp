@@ -21,42 +21,23 @@ using vector = std::vector<T>;
 
 #include <functional>
 
-#include <memory>
-#include <ctime>
-#include <sys/time.h>
-#include <cmath>
-
-void WaitTime(float seconds) noexcept
+int x = 991;
+class Deduct
 {
-	clock_t start_time      = clock();
-	float   seconds_to_wait = seconds * CLOCKS_PER_SEC;
-
-	// Wait until current time passes seconds given;
-	while (clock() < start_time + seconds_to_wait);
-}
-
-float Get_Random(float min, float max)
-{
-	timeval t;
-
-	WaitTime(0.0001);
-
-	gettimeofday(&t, NULL);
-	srand(t.tv_usec * t.tv_sec);
-
-	return min + static_cast<float>(rand()) / ( static_cast<float>(RAND_MAX/(max-min)));
-}
+public:
+	Deduct(){}
+	~Deduct() {}
 
 
+	int& v = x;
+	
+};
 
 int main()
 {
-	for (int i = 0; i < 10; ++i)
-	{
-		std::cout << Get_Random(0.0, 10.0) << std::endl;
-	}
-
-
+	Deduct d;
+	x = 8;
+	std::cout << d.v;
 
 	//std::cout << group[0] << std::endl;
 	std::cout << std::endl << R"(END)" << std::endl;

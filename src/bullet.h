@@ -21,6 +21,8 @@ namespace Shmup
 		virtual void Update(float p_dt) override;
 		virtual void Render() override;
 
+		Actor* Get_WhoCollided() noexcept { return collided_actor; }
+
 
 	protected:
 		const RectArray* frames;
@@ -30,6 +32,8 @@ namespace Shmup
 
 		unsigned int fspeed;
 		Timer move_timer;
+
+		Actor* collided_actor;
 		
 	};
 
@@ -54,6 +58,7 @@ namespace Shmup
 			logger("warn <bullet><", id, "> no frames set!");
 		}
 
+		collided_actor = nullptr;
 		move_timer.Peek();
 
 	}
@@ -62,6 +67,8 @@ namespace Shmup
 		logger("Destructing <Bullet><", id, ">...");
 		frames = nullptr;
 		targets = nullptr;
+
+		collided_actor = nullptr;
 	}
 
 
@@ -92,6 +99,7 @@ namespace Shmup
 					Rect b(target->Get_Rect());
 					if (SDL_HasIntersection(&a, &b))
 					{
+						collided_actor = target;
 						is_alive = false;
 						is_dtreact = true;
 						target->Set_Health(target->Get_Health() - dmg);

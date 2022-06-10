@@ -20,7 +20,9 @@ namespace Shmup
 		Gun(const VisualObject& p_bullet, int p_ammo, const FRect* p_spawnp, ActorArray* p_targets, const RectArray* p_frames, unsigned int p_fspeed);
 		virtual ~Gun();
 
+		void Set_CallOnDeadBullet(std::function<void (BulletList::iterator&)> p_ondead) noexcept { ondead = p_ondead; }
 		int Get_Ammo() const noexcept { return ammo; }
+		Bullet* Get_RecentBullet() noexcept { return bullets.back(); }
 
 		void Set_SpawnPoint(const FRect* p_spawnp, FRect_Manip p_man) noexcept { 
 			spawnp = p_spawnp; 
@@ -34,7 +36,7 @@ namespace Shmup
 
 		bool Is_Recharged() noexcept;
 
-		virtual void Fire(FVec2 p_vel, int p_dmg, Reaction_ptr deathreact);
+		virtual void Fire(FVec2 p_vel, int p_dmg);
 		virtual void Update(float p_dt);
 		virtual void Render();
 
@@ -53,6 +55,8 @@ namespace Shmup
 		Uint32 recharget;
 
 		int ammo;
+
+		std::function<void (BulletList::iterator&)> ondead;
 
 	};
 
@@ -85,6 +89,8 @@ namespace Shmup
 		spawnp_man =nullptr;
 		frames = nullptr;
 		targets = nullptr;
+
+		ondead = nullptr;
 	}
 
 	void Gun::Set_Targets(ActorArray* p_targets) noexcept
@@ -99,6 +105,7 @@ namespace Shmup
 		{
 			bullet->Set_Targets(p_targets);
 		}
+		logger("finised setting target");
 	}
 
 	bool Gun::Is_Recharged() noexcept 
@@ -114,7 +121,7 @@ namespace Shmup
 	}
 
 	// call is_rechanrged()
-	void Gun::Fire(FVec2 p_vel, int p_dmg, Reaction_ptr deathreact)
+	void Gun::Fire(FVec2 p_vel, int p_dmg)
 	{
 		if (!ammo)
 		{
@@ -135,8 +142,6 @@ namespace Shmup
 		logger("bullet creating bullet...");
 		bullets.push_back(new Bullet(bullet_prop, targets, frames, fspeed, p_vel, p_dmg));
 
-		logger("bullet setting reaction...");
-		bullets.back()->Set_DeathReaction(std::move(deathreact));
 		--ammo;
 
 		logger("Bullet fired, ammo left: ", ammo);
@@ -162,6 +167,10 @@ namespace Shmup
 				if ( ! (*bullet)->Is_Alive())
 				{
 					logger("\nBULLET ERASING");
+					
+					if (ondead) 
+						ondead(bullet);
+
 					delete *bullet;			
 					bullet = bullets.erase(bullet);
 

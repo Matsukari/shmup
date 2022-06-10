@@ -96,7 +96,6 @@ void App::On_Render()
 	SDL_RenderClear(renderer);
 
 
-	font.Render(ts(fps), Rect{0, 0, 15, 15});
 
 	//font.Render(Event::Get_TextInput(), Rect(300, 200,15, 15));
 
@@ -114,6 +113,7 @@ void App::On_Render()
 
 	shmup->Render();
 
+	font.Render(ts(fps), Rect{0, 0, 15, 15});
 
 
 	rendered_frames++;

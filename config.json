@@ -28,7 +28,7 @@
 		"bullet_hit" : [28, 28],
 		"ship_explosion_weak" : [42, 42],
 		"ship_explosion_elite" : [64, 64],
-		"ship_explosion_weak" : [96, 96]
+		"ship_explosion_boss" : [96, 96]
 
 	},
 	"speed" :
@@ -38,8 +38,10 @@
 		"normal_bullet" : 200,
 		"fast_bullet" : 250,
 
-		"player_recharge" : 200,
-		"enemy_recharge" : 500
+		"player_recharge" : 70,
+		"enemy_recharge" : 500,
+
+		"bg_travel" : 150
 
 	},
 	"damage" :
@@ -51,7 +53,7 @@
 	},
 	"ammo" :
 	{
-		"player" : 20,
+		"player" : 100,
 		"enemy_weak" : 10
 	},
 	"scale" : 1
