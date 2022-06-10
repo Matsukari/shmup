@@ -28,6 +28,14 @@ CCFLAGS="
 
 EXECUTABLE="shmup"
 
+if [[ $1 == "-g" ]]; then
+    echo "g++ $OBJECTS $LINKERS -g"
+    g++ $OBJECTS $LINKERS -g
+
+    exit
+fi
+
+
 echo "g++ $OBJECTS $LINKERS -o $EXECUTABLE"
 g++ $OBJECTS $LINKERS -o $EXECUTABLE
 

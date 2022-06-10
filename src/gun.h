@@ -10,12 +10,7 @@
 
 namespace Shmup
 {
-	FRect RectItsCenter(const FRect& base, const FRect& p_rect)
-	{
-		FRect rect = base;
-		rect.Set_CenterToCenter(p_rect);
-		return std::move(rect);
-	}
+
 	using BulletList = std::list<Bullet*>;
 	// collection of bullets
 	class Gun : public VisualObject // this visualobject corresponds to each bullet
@@ -27,26 +22,27 @@ namespace Shmup
 
 		int Get_Ammo() const noexcept { return ammo; }
 
-		void Set_SpawnPoint(const FRect* p_spawnp, std::function<FRect (const FRect&, const FRect&)> p_man) noexcept { 
+		void Set_SpawnPoint(const FRect* p_spawnp, FRect_Manip p_man) noexcept { 
 			spawnp = p_spawnp; 
 			spawnp_man = p_man; // mannipulator
 		}
 		void Set_RechargeTime(Uint32 p_ms) noexcept { recharget = p_ms; }
 		void Set_Ammo(int p_ammo) noexcept { ammo = p_ammo; }
 		void Set_Targets(ActorArray* p_targets) noexcept;
-		void Set_DeathReaction(Reaction* p_react) noexcept { deathreaction = p_react; }
 
 		BulletList& Get_Bullets() noexcept { return bullets; }
 
+		bool Is_Recharged() noexcept;
 
-		virtual void Fire(FVec2 p_vel, int p_dmg);
+		virtual void Fire(FVec2 p_vel, int p_dmg, Reaction_ptr deathreact);
 		virtual void Update(float p_dt);
 		virtual void Render();
 
 		
 	protected:
 		const FRect* spawnp; // where bullets come from; complemented and directed by velocity
-		std::function<FRect (const FRect&, const FRect&)> spawnp_man;
+
+		FRect_Manip spawnp_man; // spawnp manipulator
 		const RectArray* frames; // bullet frame src
 
 		ActorArray* targets;
@@ -55,8 +51,6 @@ namespace Shmup
 		unsigned int fspeed;
 		Timer shot_timer;
 		Uint32 recharget;
-
-		Reaction* deathreaction;
 
 		int ammo;
 
@@ -72,11 +66,11 @@ namespace Shmup
 		fspeed(p_fspeed)
 	{
 		logger("Initializing <Gun><", id, ">...");
-		spawnp_man = RectItsCenter;
+		spawnp_man = RectMan::CenterToCenter;
 		recharget = 300;
 		shot_timer.Peek();
 
-		deathreaction = nullptr;
+		//dtreact = nullptr;
 
 	}
 	Gun::~Gun()
@@ -88,9 +82,9 @@ namespace Shmup
 			bullet = nullptr;
 		}
 		spawnp = nullptr;
+		spawnp_man =nullptr;
 		frames = nullptr;
 		targets = nullptr;
-		deathreaction = nullptr;
 	}
 
 	void Gun::Set_Targets(ActorArray* p_targets) noexcept
@@ -107,24 +101,28 @@ namespace Shmup
 		}
 	}
 
-
-	void Gun::Fire(FVec2 p_vel, int p_dmg)
+	bool Gun::Is_Recharged() noexcept 
 	{
-				// avoid spam in event poll
+		// avoid spam in event poll
 		if (shot_timer.SinceLastPeek() <= recharget)
 		{
 			logger("Waiting to recharge, ", recharget - shot_timer.SinceLastPeek());
-			return;
+			return false;
 		}
 		shot_timer.Peek();
+		return true;
+	}
 
+	// call is_rechanrged()
+	void Gun::Fire(FVec2 p_vel, int p_dmg, Reaction_ptr deathreact)
+	{
 		if (!ammo)
 		{
 			logger("No ammo left!");
 			return;
 		}
 
-		//logger("bullet preparing...");
+		logger("bullet preparing...");
 
 
 		VisualObject bullet_prop = *this;
@@ -134,10 +132,11 @@ namespace Shmup
 
 		bullet_prop.Set_Rect(newrect);
 
-
-
+		logger("bullet creating bullet...");
 		bullets.push_back(new Bullet(bullet_prop, targets, frames, fspeed, p_vel, p_dmg));
-		bullets.back()->Set_DeathReaction(deathreaction);
+
+		logger("bullet setting reaction...");
+		bullets.back()->Set_DeathReaction(std::move(deathreact));
 		--ammo;
 
 		logger("Bullet fired, ammo left: ", ammo);
@@ -151,6 +150,7 @@ namespace Shmup
 		{
 			//logger("bullet ammo.begin()...");
 
+			
 			for(auto bullet = bullets.begin(); bullet != bullets.end(); )
 			{
 				//logger("bullet UpDATING...");
@@ -162,7 +162,7 @@ namespace Shmup
 				if ( ! (*bullet)->Is_Alive())
 				{
 					logger("\nBULLET ERASING");
-					delete *bullet;					
+					delete *bullet;			
 					bullet = bullets.erase(bullet);
 
 					 // THIS WORKED BEFORE ATTACHING THIS TO SHIP
@@ -180,9 +180,9 @@ namespace Shmup
 
 	void Gun::Render()
 	{
-		for(auto bullet : bullets)
+		for(auto bullet = bullets.begin(); bullet != bullets.end(); bullet++)
 		{
-			bullet->Render();
+			(*bullet)->Render();
 		}
 
 	}

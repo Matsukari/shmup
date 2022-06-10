@@ -93,7 +93,7 @@ namespace Shmup
 					if (SDL_HasIntersection(&a, &b))
 					{
 						is_alive = false;
-						is_deathreact = true;
+						is_dtreact = true;
 						target->Set_Health(target->Get_Health() - dmg);
 
 						logger("<Bullet><", id, " hit an Actor");	

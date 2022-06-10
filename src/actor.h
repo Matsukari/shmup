@@ -28,25 +28,57 @@ namespace Shmup
 		
 	};
 	Reaction::~Reaction(){}
+	using Reaction_ptr = std::unique_ptr<Reaction>;
+	using FRect_Manip = std::function<FRect (const FRect&, const FRect&)>;
+
+	namespace RectMan
+	{
+		FRect CenterToCenter(const FRect& base, const FRect& p_rect)
+		{
+			FRect rect = base;
+			rect.Set_CenterToCenter(p_rect);
+			return std::move(rect);
+		}
+		// within p_rect revolving in its center
+		FRect RandomInsideOffMid(const FRect& base, const FRect& p_rect)
+		{
+			FRect rect = base;
+			rect.x = Get_Random(p_rect.Left() - (base.w/2), p_rect.Right() - (base.w/2));
+			rect.y = Get_Random(p_rect.Top() - (base.h/2), p_rect.Bottom() - (base.h/2));
+
+			return std::move(rect);
+		}
+	}
 
 
 	class Animation : public VisualObject, public FrameList
 	{
 	public:
-		Animation(const VisualObject& p_obj, const FrameList& p_frames, const FRect* p_spawnp) : 
+		Animation(const VisualObject& p_obj, const FrameList& p_frames, const FRect* p_spawnp, 
+			FRect_Manip p_spawnp_man=RectMan::CenterToCenter) : 
+
 			VisualObject(p_obj),
 			FrameList(p_frames),
-			spawnp(p_spawnp)
+			spawnp(p_spawnp),
+			spawnp_man(p_spawnp_man)
 		{
-
+			logger("Animtion created.");
 		}
-		virtual ~Animation() {}
+
+		void Set_SpawnPointManip(FRect_Manip p_spawnp_man=RectMan::CenterToCenter) noexcept { spawnp_man = p_spawnp_man; }
+		virtual ~Animation() 
+		{
+			spawnp = nullptr;
+			spawnp_man = nullptr;
+			logger("Animation destruct");
+		}
 
 		virtual void Play() noexcept 
 		{ 
 			is_playing = true; 
-			rect.x = spawnp->x;
-			rect.y = spawnp->y;
+
+
+			rect = spawnp_man(rect, *spawnp);
 
 		} // static
 
@@ -78,6 +110,7 @@ namespace Shmup
 	protected:
 		bool is_playing = false;
 		const FRect* spawnp;
+		FRect_Manip spawnp_man;
 
 		
 	};
@@ -85,18 +118,20 @@ namespace Shmup
 	class AnimReaction : public Reaction
 	{
 	public:
-		AnimReaction(Animation* p_anim) : anim(p_anim) {}
+		AnimReaction(std::shared_ptr<Animation> p_anim) : anim(std::move(p_anim)) {}
 		~AnimReaction() 
 		{ 
-			anim = nullptr;
 		}
 		virtual void Activate()
 		{
 			anim->Play();
 		}
 
+		std::shared_ptr<Animation> Get_Anim() const { return anim; }
+
 	protected:
-		Animation* anim;
+		std::shared_ptr<Animation> anim; // this shit will be destroyed along reaction once it reached estructor, 
+		// let outside manage the update of render of this anim
 		
 	};
 	class Actor : public VisualObject
@@ -105,7 +140,8 @@ namespace Shmup
 		Actor(const VisualObject& p_obj);
 		virtual ~Actor() override;
 
-		virtual void Set_DeathReaction(Reaction* p_react) noexcept { deathreaction = p_react; }
+		// this reaction is only used to trigger activate(), output is left outside
+		virtual void Set_DeathReaction(Reaction_ptr p_react) { dtreact = std::move(p_react); }
 
 		int Get_Health() const noexcept { return health; }
 		FVec2 Get_Vel() const noexcept { return vel; }
@@ -119,7 +155,7 @@ namespace Shmup
 		virtual void Update(float p_dt) override;
 
 		void Kill() noexcept { is_alive = false; }
-		void DeathReact() noexcept { is_deathreact = true; }
+		void DeathReact() noexcept { is_dtreact = true; }
 
 
 	protected:
@@ -129,8 +165,8 @@ namespace Shmup
 
 		FVec2 vel;
 
-		Reaction* deathreaction;
-		bool is_deathreact;
+		Reaction_ptr dtreact;
+		bool is_dtreact;
 
 	};
 	using ActorArray = std::vector<Actor*>;
@@ -142,23 +178,23 @@ namespace Shmup
 		logger("Initializing <Actor><", id, ">...");
 
 		is_alive = true;
-		health = 110;
+		health = 100;
 		collrect = rect;
 		
 		vel = FVec2{0.0f, 0.0f};
 
-		deathreaction = nullptr;
-		is_deathreact = false;
+		is_dtreact = false;
+		//dtreact = nullptr;
 	}
 	Actor::~Actor()
 	{
 		logger("Destructing <Actor><", id, ">...");
-		if (is_deathreact && deathreaction)
+		if (is_dtreact && dtreact)
 		{
-			deathreaction->Activate();
+			dtreact->Activate();
 			logger("________Activating Destuctor Reaction_____");
+			//dtreact = nullptr;
 		}
-		//std::cout << "~ACTOR" << std::endl;
 	}
 
 	void Actor::Update(float p_dt)

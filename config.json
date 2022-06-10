@@ -23,15 +23,36 @@
 		"player" : [32, 48],
 		"enemy_weak" : [32, 32],
 		"player_bullet" : [10, 26],
-		"enemy_bullet" : [5, 5]
+		"enemy_bullet" : [5, 5],
+
+		"bullet_hit" : [28, 28],
+		"ship_explosion_weak" : [42, 42],
+		"ship_explosion_elite" : [64, 64],
+		"ship_explosion_weak" : [96, 96]
+
 	},
 	"speed" :
 	{
 		"player_move" : 140,
 		"slow_bullet" : 130,
 		"normal_bullet" : 200,
-		"fast_bullet" : 250
+		"fast_bullet" : 250,
 
+		"player_recharge" : 200,
+		"enemy_recharge" : 500
+
+	},
+	"damage" :
+	{
+		"player" : 10,
+		"enemy_weak" : 7,
+		"enemy_elite" : 40,
+		"enemy_boss" : 100
+	},
+	"ammo" :
+	{
+		"player" : 20,
+		"enemy_weak" : 10
 	},
 	"scale" : 1
 }
