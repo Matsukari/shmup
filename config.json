@@ -13,7 +13,10 @@
 		"special_bullet" : "X",
 
 		"bullet_hit" : "explosion.png",
-		"ship_explosion" : "explosion.png"
+		"ship_explosion" : "explosion.png",
+
+		"ammo" : "ammo.png",
+		"health" : "health.png"
 
 	},
 
@@ -21,14 +24,20 @@
 	{
 		"screen" : [720, 550],
 		"player" : [32, 48],
+
 		"enemy_weak" : [32, 32],
+		"enemy_elite" : [64, 32],
+		"enemy_boss" : [78, 90],
+
 		"player_bullet" : [10, 26],
 		"enemy_bullet" : [5, 5],
 
 		"bullet_hit" : [28, 28],
-		"ship_explosion_weak" : [42, 42],
-		"ship_explosion_elite" : [64, 64],
-		"ship_explosion_boss" : [96, 96]
+		"ship_explosion_weak" : [64, 64],
+		"ship_explosion_elite" : [70, 70],
+		"ship_explosion_boss" : [160, 160],
+
+		"world_explosion": [999, 999]
 
 	},
 	"speed" :
@@ -38,8 +47,15 @@
 		"normal_bullet" : 200,
 		"fast_bullet" : 250,
 
-		"player_recharge" : 70,
-		"enemy_recharge" : 500,
+		"player_recharge" : 130,
+		"enemy_weak_recharge" : 2000,
+		"enemy_elite_recharge" : 700,
+		"enemy_boss_recharge" : 150,
+
+		"enemy_weak_move" : 90,
+		"enemy_elite_move" : 160,
+		"enemy_boss_move" : 70,
+
 
 		"bg_travel" : 150
 
@@ -47,14 +63,34 @@
 	"damage" :
 	{
 		"player" : 10,
-		"enemy_weak" : 7,
-		"enemy_elite" : 40,
-		"enemy_boss" : 100
+		"enemy_weak" : 5,
+		"enemy_elite" : 15,
+		"enemy_boss_normal" : 5,
+		"enemy_boss_special" : 30
+	},
+	"health" :
+	{
+		"player" : 100,
+		"enemy_weak" : 80,
+		"enemy_elite" : 200,
+		"enemy_boss" : 500
 	},
 	"ammo" :
 	{
-		"player" : 100,
-		"enemy_weak" : 10
+		"player" : 1000,
+		"enemy_weak" : 100,
+		"enemy_elite" : 200,
+		"enemy_boss" : 3000
+
+	},
+	"reload_time" :
+	{
+		"player" : 400,
+		"enemy_weak" : 7,
+		"enemy_elite" : 10,
+		"enemy_boss_normal" : 1000,
+		"enemy_boss_special" : 2000
+
 	},
 	"scale" : 1
 }

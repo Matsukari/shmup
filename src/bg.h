@@ -24,6 +24,16 @@ namespace Shmup
 		{}
 
 
+		bool SlowWhile(float p_speed, float p_n, float p_dt) noexcept // pixel per second
+		{
+			vel.y -= p_speed * p_dt;
+			if (vel.y < p_n)
+			{
+				return false;
+			}
+			return true;
+		}
+
 
 		void Update(float p_dt) override
 		{

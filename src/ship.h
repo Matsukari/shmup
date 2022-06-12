@@ -6,7 +6,9 @@
 
 namespace Shmup
 {
-	// pass a big fat toy gun to this baby, he won't forget to clean it after so..! 
+	// pass a big fat toy gun to this baby, wait, nonono, next time pls, dont encapsulate the gun so he can manage 
+	// the bullets even after the ship get destroyed
+	
 	class Ship : public Actor, public Move4
 	{
 	public:

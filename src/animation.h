@@ -9,7 +9,7 @@
 
 namespace Shmup
 {
-
+	// rendering pos does not move,
 	class Animation : public VisualObject, public FrameList
 	{
 	public:
@@ -34,6 +34,38 @@ namespace Shmup
 
 		
 	};
+
+	class NAnimation : public Animation
+	{
+	public:
+		NAnimation(const Animation& p_obj, int p_encore) : Animation(p_obj), encore(p_encore) {}
+
+		virtual void Update(float p_dt) override
+		{
+			auto UntilEnd = [&]()
+			{
+				curr++;
+				if (curr >= size())
+				{
+					curr = 0;
+					is_playing = false;
+					encore--;
+					if (encore==0) is_alive = false;
+
+				}
+			};
+			if (is_playing)
+			{
+				VisualObject::Update(p_dt);
+				FrameList::On_NextFrame(UntilEnd);
+			}
+		}
+
+	protected:
+		int encore=0;
+	};
+
+
 
 	class AnimReaction : public Reaction
 	{

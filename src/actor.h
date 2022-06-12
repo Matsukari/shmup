@@ -23,6 +23,7 @@ namespace Shmup
 
 	};
 
+	// create a pointer to some kind of music? this shit owns a pretty good ammount of *** already, so...
 	class Actor : public VisualObject
 	{
 	public:
@@ -39,7 +40,7 @@ namespace Shmup
 		const FRect& Get_CollRect() const noexcept { return collrect; }
 
 		void Set_MaxHealth(int p_health) noexcept { maxhealth = p_health; }
-		void Set_Health(int p_health) noexcept { health = std::min(p_health, this->maxhealth); }
+		void Set_Health(int p_health) { health = std::min(p_health, this->maxhealth); }
 
 		void Set_Vel(FVec2 p_vel) noexcept { vel = p_vel; }
 		void Set_CollRect(const FRect& p_collrect) noexcept { collrect = p_collrect; }

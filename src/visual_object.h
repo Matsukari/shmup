@@ -19,7 +19,8 @@ namespace Shmup
 	};
 	Object::~Object() {}
 	
-	// inherit me
+	// Object class will have no value if you're going to override it and mask the interface, but...meh, it's necessary 
+	// to create a default ****
 	class VisualObject : public Object
 	{
 	public:

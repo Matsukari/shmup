@@ -14,7 +14,21 @@ namespace Shmup
 		{
 			FRect rect = base;
 			rect.Set_CenterToCenter(p_rect);
-			return std::move(rect);
+			return rect;
+		}
+		FRect AfterBottomLeft(const FRect& base, const FRect& p_rect)
+		{
+			FRect rect = base;
+			rect.x = p_rect.Left();
+			rect.y = p_rect.Bottom();
+			return rect;
+		}
+		FRect AfterBottomRight(const FRect& base, const FRect& p_rect)
+		{
+			FRect rect = base;
+			rect.x = p_rect.Right();
+			rect.y = p_rect.Bottom();
+			return rect;
 		}
 		// rect inside until half of base size offset to outside
 		FRect RandomInsideOffMid(const FRect& base, const FRect& p_rect)
@@ -23,7 +37,7 @@ namespace Shmup
 			rect.x = Get_Random(p_rect.Left() - (base.w/2), p_rect.Right() - (base.w/2));
 			rect.y = Get_Random(p_rect.Top() - (base.h/2), p_rect.Bottom() - (base.h/2));
 
-			return std::move(rect);
+			return rect;
 		}
 	}
 
